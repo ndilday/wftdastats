@@ -1,0 +1,129 @@
+﻿<div class="row">
+    <h1>{{title}}</h1>
+</div>
+<div class="row">
+    <h5>Explanation of Columns</h5>
+    <p> A few of the columns in the tables below aren't self-explanatory.</p>
+    <p>
+        <b>Jam: </b> Instead of just being a count of the jams a player was "in", this is an approximation of the portion of jams that player was on the track.
+        For example, if a player served a full penalty in a 60-second jam, they contributed less than 0.5 of the full jam ("less than" because of time taken
+        getting to the box and time returning to the track).
+    </p>
+    <p>
+        <b>Normal Delta:</b> Over a large database of bouts, the average point delta teams achieve in jams with similar penalty situations.
+    </p>
+    <p>
+        <b>Actual Delta:</b> The difference between this team's points and the opposing team's points in this jam.
+    </p>
+    <p>
+        <b>Penalty Cost:</b> An approximation of how much the player's penalties commited in this jam cost the team.
+        This will include the cost of all the box time served for those penalties, not just the cost of the box time within the same jam.
+    </p>
+    <p>
+        <b>VVM:</b> Value Versus Median. This is the result of a formula that looks at how much of the jam the player was in,
+        and how well that jam went and estimates how that player performed relative to the average in that jam.
+        This value <b>does not take penalties into account</b>!
+    </p>
+    <p>
+        <b>AVVM:</b> Average Value Versus Median. This is just VVM divided by the jam value, and gives a sense of how well this player performed 
+        <b>while on the track</b> (i.e. ignoring the cost of penalties).
+    </p>
+    <p>
+        <b>AJV:</b> Average Jam Value. VVM minus Penalty Cost, divided by the jam portions. This value gives a sense of the aggregate effect of
+        all of a player's actions on the track.
+    </p>
+    <div class="panel panel-info">
+        <div class="panel-heading">Notes</div>
+        <div class="panel-body">
+            <p>
+                The fewer jams a player is in, the less their results can be compared to another player. (That's why I've sorted the lists by number of jams.)
+                Be especially skeptical of comparing players who did not play in the same games.
+            </p>
+            <p>
+                Pivots are tricky to represent. Right now, pivot blocker stats are being affected by the scoring that occurs 
+                after they've been passed the star in a jam, which isn't quite right.
+            </p>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="ac-select" ac-model="selectedTeam" ac-options="team.longName for team in teamList"></div>
+</div>
+<div class="row" data-us-spinner data-ng-hide="finishedLoading"></div>
+<div class="row" data-ng-show="finishedLoading">
+    <div class="row">
+        <div class="panel panel-success">
+            <div class="panel-heading">Jammer Stats</div>
+            <div class="panel-body">
+                <table data-tt-table data-tt-params="jammerParams" class="table table-striped" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Player Name</th>
+                            <th>Player Number</th>
+                            <th>Bout Date</th>
+                            <th>Home Team</th>
+                            <th>Away Team</th>
+                            <th>Period</th>
+                            <th>Jam</th>
+                            <th>Normal Delta</th>
+                            <th>Actual Delta</th>
+                            <th>Penalty Count</th>
+                            <th>Penalty Cost</th>
+                            <th>VVM</th>
+                            <th>AVVM</th>
+                            <th>AJV</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="panel panel-success">
+            <div class="panel-heading">Blocker Stats</div>
+            <div class="panel-body">
+                <table data-tt-table data-tt-params="blockerParams" class="table table-striped" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Player Name</th>
+                            <th>Player Number</th>
+                            <th>Bout Date</th>
+                            <th>Home Team</th>
+                            <th>Away Team</th>
+                            <th>Period</th>
+                            <th>Jam</th>
+                            <th>Normal Delta</th>
+                            <th>Actual Delta</th>
+                            <th>Penalty Count</th>
+                            <th>Penalty Cost</th>
+                            <th>VVM</th>
+                            <th>AVVM</th>
+                            <th>AJV</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/ng-template" id="tree_node">
+    <tr tt-node is-branch="node.hasOwnProperty('children')">
+        <td><span ng-bind="node.playerName"></span></td>
+        <td ng-bind="node.playerNumber"></td>
+        <td ng-bind="node.boutDate"></td>
+        <td ng-bind="node.homeTeam"></td>
+        <td ng-bind="node.awayTeam"></td>
+        <td ng-bind="node.period"></td>
+        <td ng-bind="node.jam"></td>
+        <td ng-bind="node.averageDelta"></td>
+        <td ng-bind="node.actualDelta"></td>
+        <td ng-bind="node.penaltyCount"></td>
+        <td ng-bind="node.penaltyCost"></td>
+        <td ng-bind="node.totalPVM"></td>
+        <td ng-bind="node.averagePVM"></td>
+        <td ng-bind="node.averageValue"></td>
+    </tr>
+</script>

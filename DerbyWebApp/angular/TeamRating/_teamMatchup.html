@@ -1,0 +1,83 @@
+﻿<div class="row">
+    <h2>Team Matchup Comparisons</h2>
+    Select two teams below. The system will then calculate the share of points <a href="http://flattrackstats.com/">FlatTrackStats</a> expects each team to get at a neutral location. 
+    It also calculates, given that predicted point spread, what the WFTDA Rankings Score for the bout would be compared to that team's average. 
+    For example, if a team's current WFTDA Rankings Score is 300, and the data below shows a +17%, the score for the bout would be around 351.
+    (The total effect that will have on a team's actual WFTDA Rankings Score will depend on what games have "fallen off" the team's rolling 12-month sanctioned bout list, 
+    and the Rankings Scores of the games still on that list.)
+    <br />
+    <br />
+    <a href="http://wftda.com/files/wftda-rankings-calculator.pdf">WFTDA</a> has more data on how their rankings are calculated.
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="row">
+            <h3>Team 1</h3>
+            <select id="firstTeam" style="width:300px" />
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">Expected Point Shares</div>
+                <div class="row">WFTDA Rankings Score</div>
+            </div>
+            <div class="col-md-6">
+                <div class="row" id="team1Share"></div>
+                <div class="row" id="team1Adjustment"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="row">
+            <h3>Team 2</h3>
+            <select id="secondTeam" style="width:300px" />
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">Expected Point Share</div>
+                <div class="row">WFTDA Rankings Score</div>
+            </div>
+            <div class="col-md-6">
+                <div class="row" id="team2Share"></div>
+                <div class="row" id="team2Adjustment"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var selects = $('select');
+    $.each(teamRankingData.data, function (key, value) {
+        selects
+             .append($('<option>', { value: this.TeamID })
+             .text(this.LeagueName));
+    });
+    $("#firstTeam").append($("#firstTeam option").remove().sort(function (a, b) {
+        var at = $(a).text().toLowerCase().trim(), bt = $(b).text().toLowerCase().trim();
+        return (at > bt) ? 1 : ((at < bt) ? -1 : 0);
+    }));
+    $("#secondTeam").append($("#secondTeam option").remove().sort(function (a, b) {
+        var at = $(a).text().toLowerCase().trim(), bt = $(b).text().toLowerCase().trim();
+        return (at > bt) ? 1 : ((at < bt) ? -1 : 0);
+    }));
+
+    selects.select2();
+
+    selects.change(ProcessTeams);
+    ProcessTeams();
+
+    function ProcessTeams() {
+        var team1 = teamRankingData.data.filter(function (obj) { return obj.TeamID == $('#firstTeam').val(); })[0];
+        var team2 = teamRankingData.data.filter(function (obj) { return obj.TeamID == $('#secondTeam').val(); })[0];
+        var team1Share = 1 / (1 + Math.pow(Math.E, ((team2.FtsScore - team1.FtsScore) / 100)));
+        var team2Share = 1 / (1 + Math.pow(Math.E, ((team1.FtsScore - team2.FtsScore) / 100)));
+        var team1WftdaNeed = team1.WftdaScore / (300 * team2.WftdaStrength);
+        var team2WftdaNeed = team2.WftdaScore / (300 * team1.WftdaStrength);
+        var team1Improvement = Math.round(((team1Share / team1WftdaNeed) - 1) * 100);
+        var team2Improvement = Math.round(((team2Share / team2WftdaNeed) - 1) * 100);
+        $('#team1Share').text(Math.round(team1Share * 100) + '%');
+        $('#team2Share').text(Math.round(team2Share * 100) + '%');
+        $('#team1Adjustment').text((team1Improvement > 0 ? '+' : '') + team1Improvement + '%');
+        $('#team2Adjustment').text((team2Improvement > 0 ? '+' : '') + team2Improvement + '%');
+    }
+
+    //# sourceURL=_teamMatchup.js
+</script>

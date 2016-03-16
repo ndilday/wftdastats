@@ -1,0 +1,81 @@
+﻿<div class="row">
+    <h1>{{title}}</h1>
+</div>
+<div class="row">
+    <h5>Explaination of Columns</h5>
+    <p><b>Exp Share:</b> The portion of the game points FlatTrackStats expects the selected team to get.</p>
+    <p><b>Gain:</b> How much above your current WFTDA Rankings Score the expected points share will get you. 
+    For example, if the selected team currently has a WFTDA Rankings Score of 300, and the Gain Column lists 20%, 
+    that means the predicted victory would have a Rankings Score value of 360. 
+    (The actual increase to the team's ranking score would depend on a number of other things, 
+    like how many games are in their twelve-month window, whether any are falling out before the next WFTRA Rankings Calculation, etc.)</p>
+    <p><b>Opp Gain:</b> Identical to the previous column, but from the opposing team's perspective.</p>
+</div>
+<div class="row">
+    <div class="ac-select" ac-model="selectedTeam" ac-options="team.LeagueName for team in rankList"></div>
+</div>
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-success">
+            <div class="panel-heading">Win-Win Matchups</div>
+            <div class="panel-body">
+                <div class="row">
+                    The matchups below are ones where, if the teams earn points as FlatTrackStats predicts, both teams will end up gaining WFTDA Ranking Points at least as high as their current average.
+                </div>
+                <div class="row">
+                    <table datatable="ng" data-dt-options="dtOptions" class="row-border hover table table-striped" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Opponent</th>
+                                <th>Exp Share</th>
+                                <th>Gain</th>
+                                <th>Opp Gain</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-repeat="row in winWin">
+                                <td>{{row.oppName}}</td>
+                                <td>{{row.share}}%</td>
+                                <td>{{row.t1i}}%</td>
+                                <td>{{row.t2i}}%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>  
+    <div class="col-md-6">
+        <div class="panel panel-warning">
+            <div class="panel-heading">One-Sided Matchups</div>
+            <div class="panel-body">
+                <div class="row">
+                    These matchups are ones where, if the teams earn points as FlatTrackStats predicts,
+                    the team selected above will gain WFTDA Ranking Points at least as high as their current average,
+                    but the other team will not. (i.e. A game the other team probably shouldn't accept.)
+                </div>
+                <div class="row">
+                    <table datatable="ng" data-dt-options="dtOptions" class="row-border hover table table-striped" style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th>Opponent</th>
+                                <th>Exp Share</th>
+                                <th>Gain</th>
+                                <th>Opp Gain</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr data-ng-repeat="row in oneSided">
+                                <td>{{row.oppName}}</td>
+                                <td>{{row.share}}%</td>
+                                <td>{{row.t1i}}%</td>
+                                <td>{{row.t2i}}%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

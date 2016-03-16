@@ -1,0 +1,6 @@
+bin
+obj
+/DerbyDataAccessLayer/*.user
+*.suo
+QuickTester.csproj.user
+packages

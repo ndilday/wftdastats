@@ -1,0 +1,43 @@
+﻿<div class="container">
+    <div class="row">
+        <h2>{{rankings.title}}</h2>
+    </div>
+    <div class="row" data-us-spinner data-ng-hide="rankings.finishedLoading"></div>
+    <div class="row" data-ng-show="rankings.finishedLoading">
+        <table datatable="ng" data-dt-options="rankings.dtOptions" class="row-border hover table table-striped" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Team Name</th>
+                    <th>WFTDA Rank</th>
+                    <th>WFTDA Strength</th>
+                    <th>WFTDA Score</th>
+                    <th>FTS Rank</th>
+                    <th>FTS Score</th>
+                    <th>Date Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-ng-repeat="row in rankings.rankList">
+                    <td>{{row.LeagueName}}</td>
+                    <td>{{row.WftdaRank}}</td>
+                    <td>{{row.WftdaStrength}}</td>
+                    <td>{{row.WftdaScore}}</td>
+                    <td>{{row.FtsRank}}</td>
+                    <td>{{row.FtsScore}}</td>
+                    <td>{{row.AddedDate}}</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th>Team Name</th>
+                    <th>WFTDA Rank</th>
+                    <th>WFTDA Strength</th>
+                    <th>WFTDA Score</th>
+                    <th>FTS Rank</th>
+                    <th>FTS Score</th>
+                    <th>Date Updated</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

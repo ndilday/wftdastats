@@ -1,0 +1,31 @@
+﻿<div class="container">
+    <div class="row">
+        <h3>Win Margin Calculator</h3>
+        Because WFTDA Rankings Scores have been inflating over the past couple of years, it's often useful to understand what is required to achieve a specific score,
+        rather than to compare to a team's current score. This calculator allows you to pick a team and a desired WFTDA Rankings Score for a bout, and lists the point share
+        needed against the teams in the system to achieve that score. It also gives an example score that gives that share.
+    </div>
+    <div class="row">
+        <div class="row"><div class="ac-select" ac-model="selectedTeam" ac-options="team.LeagueName for team in rankList"></div></div>
+        <div class="row">WFTDA Points Desired: <input data-ng-model="points" type="number" /></div>
+        <div class="row"><button type="button" class="btn btn-primary" data-ng-click="ProcessTeam()">Calculate</button></div>
+    </div>
+    <div class="row">
+        <table datatable="ng" data-dt-options="dtOptions" class="row-border hover table table-striped" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Team</th>
+                    <th>Share Needed</th>
+                    <th>Example Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-ng-repeat="row in matchupList">
+                    <td>{{row.oppName}}</td>
+                    <td>{{row.share}}%</td>
+                    <td>{{row.score}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

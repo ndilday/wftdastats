@@ -1,0 +1,80 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <link type="text/css" href="http://bootswatch.com/cyborg/bootstrap.css" rel="stylesheet" />
+    <link type="text/css" href="Content/DataTables-1.10.4/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <link type="text/css" href="Content/acute.select/acute.select.css" rel="stylesheet" />
+    <link type="text/css" href="Content/css/jquery.treetable.css" rel="stylesheet" />
+    <link type="text/css" href="Content/css/jquery.treetable.theme.default.css" rel="stylesheet" />
+    <title>WFTDAStats</title>
+</head>
+<body data-ng-app="WftdaStatsApp">
+    <div id="page">
+        <header class="container">
+            <div class="navbar navbar-default">
+                <div class="container-fluid">
+                    <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#/home">WFTDAStats</a>
+                    </div>
+
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse">
+                        <ul class="nav navbar-nav">
+                            <li class="dropdown" dropdown on-toggle="toggled(open)">
+                                <a class="dropdown-toggle" data-toggle="dropdown" dropdown-toggle>Team Rankings <span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#/teamRating">About</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#/teamRating/rankingTable">Rankings Table</a></li>
+                                    <li><a href="#/teamRating/matchupWizard">Matchup Wizard</a></li>
+                                    <li><a href="#/teamRating/winMargin">Win Margin Calculator</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown" dropdown on-toggle="toggled(open)">
+                                <a class="dropdown-toggle" data-toggle="dropdown" dropdown-toggle>Player Performance <span class="caret"></span></a>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#/teamPlayerPerformance">About</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#">Methodology</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#/teamPlayerPerformance/calculator/points">Team Performance Calculator</a></li>
+                                    <li><a href="#/teamPlayerPerformance/calculator/value">Unitless Performance Calculator</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </div>
+        </header>
+        <div class="container" id="body">
+            <div data-ng-view></div>
+        </div>
+    </div>
+</body>
+</html>
+<!--Third Party Libraries-->
+<script type="text/javascript" src="Scripts/jquery-2.1.3.js"></script>
+<script type="text/javascript" src="Scripts/DataTables-1.10.4/jquery.dataTables.js"></script>
+<script type="text/javascript" src="Scripts/DataTables-1.10.4/dataTables.bootstrap.js"></script>
+<script type="text/javascript" src="Scripts/angular-treetable/jquery.treetable.js"></script>
+
+<script type="text/javascript" src="Scripts/angular.js"></script>
+<script type="text/javascript" src="Scripts/angular-route.js"></script>
+<script type="text/javascript" src="Scripts/angular-ui/ui-bootstrap.js"></script>
+<script type="text/javascript" src="https://rawgithub.com/l-lin/angular-datatables/dev/dist/angular-datatables.js"></script>
+<script type="text/javascript" src="Scripts/acute.select/acute.select.js"></script>
+<script type="text/javascript" src="Scripts/spin.js"></script>
+<script type="text/javascript" src="Scripts/angular-spinner.js"></script>
+<script type="text/javascript" src="Scripts/angular-treetable/angular-treetable.js"></script>
+<script type="text/javascript" src="angular/app.js"></script>
+<script type="text/javascript" src="angular/factories.js"></script>
+<script type="text/javascript" src="angular/TeamRating/controllers.js"></script>
+<script type="text/javascript" src="angular/TeamPlayerPerformance/controllers.js"></script>
