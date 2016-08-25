@@ -26,8 +26,10 @@ namespace StatbookReader
 
         public List<PenaltyService> ProcessPenalties(Dictionary<int, Dictionary<int, IList<BoxTimeModel>>> homePlayerJamBoxTimeMap, 
                                                      Dictionary<int, PlayerPenaltiesModel> homePlayerPenaltiesModelMap,
+                                                     Dictionary<int, int> homeEndJammerMap,
                                                      Dictionary<int, Dictionary<int, IList<BoxTimeModel>>> awayPlayerJamBoxTimeMap,
-                                                     Dictionary<int, PlayerPenaltiesModel> awayPlayerPenaltiesModelMap)
+                                                     Dictionary<int, PlayerPenaltiesModel> awayPlayerPenaltiesModelMap,
+                                                     Dictionary<int, int> awayEndJammerMap)
         {
             // create penalty and box time maps
             Dictionary<int, List<BoxTime>> homeJamBoxTimeMap, awayJamBoxTimeMap, allJamBoxTimeMap;
@@ -38,8 +40,8 @@ namespace StatbookReader
             TranslatePenaltyDictionary(awayPlayerPenaltiesModelMap, out awayJamPenaltyMap, out awayPlayerPenaltyMap);
             TranslateBoxTimeDictionary(homePlayerJamBoxTimeMap, out homeJamBoxTimeMap, out homePlayerBoxTimeMap);
             TranslateBoxTimeDictionary(awayPlayerJamBoxTimeMap, out awayJamBoxTimeMap, out awayPlayerBoxTimeMap);
-            var penaltyService = ProcessTeamPenalties(homePlayerBoxTimeMap, homeJamBoxTimeMap, homePlayerPenaltyMap);
-            penaltyService.AddRange(ProcessTeamPenalties(awayPlayerBoxTimeMap, awayJamBoxTimeMap, awayPlayerPenaltyMap));
+            var penaltyService = ProcessTeamPenalties(homePlayerBoxTimeMap, homeJamBoxTimeMap, homePlayerPenaltyMap, homeEndJammerMap);
+            penaltyService.AddRange(ProcessTeamPenalties(awayPlayerBoxTimeMap, awayJamBoxTimeMap, awayPlayerPenaltyMap, awayEndJammerMap));
             
             var longServices = penaltyService.Where(ps => ps.Penalties.Count > 1).SelectMany(ps => ps.BoxTimes).ToList();
             allJamBoxTimeMap = new Dictionary<int, List<BoxTime>>();
@@ -59,13 +61,13 @@ namespace StatbookReader
         }
 
         private List<PenaltyService> ProcessTeamPenalties(Dictionary<int, List<BoxTime>> playerBoxTimeMap, Dictionary<int, List<BoxTime>> jamBoxTimeMap,
-            Dictionary<int, List<Penalty>> playerPenaltyMap)
+            Dictionary<int, List<Penalty>> playerPenaltyMap, Dictionary<int, int> endJammerMap)
         {
             SolveAmbiguousBoxTimes(playerBoxTimeMap, jamBoxTimeMap);
             
             var jamFullBoxMap = jamBoxTimeMap.ToDictionary(jbt => jbt.Key, jbt => jbt.Value.Count(bt => bt.StartedJamInBox == null || bt.StartedJamInBox == true) > 1);
-
             List<PenaltyService> penaltyService = new List<PenaltyService>();
+
             foreach(KeyValuePair<int, List<Penalty>> playerPenalties in playerPenaltyMap)
             {
                 if (playerBoxTimeMap.ContainsKey(playerPenalties.Key))
@@ -78,7 +80,7 @@ namespace StatbookReader
             bool leftoverBoxTimeMap = playerBoxTimeMap.Any(kvp => kvp.Value.Any());
             if(leftoverPenaltyMap || leftoverBoxTimeMap)
             {
-                ProcessLeftoverBoxes(playerPenaltyMap, playerBoxTimeMap, jamFullBoxMap, penaltyService);
+                ProcessLeftoverBoxes(playerPenaltyMap, playerBoxTimeMap, jamFullBoxMap, endJammerMap, penaltyService);
                 leftoverPenaltyMap = playerPenaltyMap.Any(kvp => kvp.Value.Any());
                 leftoverBoxTimeMap = playerBoxTimeMap.Any(kvp => kvp.Value.Any());
                 if (leftoverPenaltyMap || leftoverBoxTimeMap)
@@ -131,6 +133,22 @@ namespace StatbookReader
             while (penaltyIndex < playerPenalties.Count)
             {
                 Penalty penalty = playerPenalties[penaltyIndex];
+                while(penalty.MatchingKey != null)
+                {
+                    penaltyIndex++;
+                    if(penaltyIndex < playerPenalties.Count)
+                    {
+                        penalty = playerPenalties[penaltyIndex];
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                if(penaltyIndex >= playerPenalties.Count)
+                {
+                    break;
+                }
                 PenaltyService currentService = null;
                 BoxTime serviceStart = null;
                 if (serviceIndex < servicesBoxed.Count)
@@ -138,7 +156,8 @@ namespace StatbookReader
                     currentService = servicesBoxed[serviceIndex];
                     serviceStart = currentService.BoxTimes.First();
                     // if this service starts before this penalty, skip it
-                    while (CompareJams(_jams.First(j => j.ID == serviceStart.JamID), _jams.First(j => j.ID == penalty.JamID)) < 0)
+                    // if this service is a special case, skip it
+                    while (CompareJams(_jams.First(j => j.ID == serviceStart.JamID), _jams.First(j => j.ID == penalty.JamID)) < 0 || currentService.ServiceKey != null)
                     {
                         serviceIndex++;
                         if (serviceIndex < servicesBoxed.Count)
@@ -222,7 +241,17 @@ namespace StatbookReader
                             // unexpected not starting jam in box?
                             Player player = _players.Values.First(p => p.ID == penalty.PlayerID);
                             Jam jam = _jams.First(j => j.ID == penalty.JamID);
-                            throw new InvalidOperationException(string.Format("{0}: {1} did not start in box", jam.ToString(), player.Number));
+
+                            currentService.Penalties.Add(penalty);
+                            playerPenalties.RemoveAt(penaltyIndex);
+                            servicesBoxed.RemoveAt(serviceIndex);
+                            penaltyService.Add(currentService);
+                            lastPenaltyService = currentService;
+                            foreach (BoxTime boxTime in currentService.BoxTimes)
+                            {
+                                playerBoxTimes.Remove(boxTime);
+                            }
+                            Console.WriteLine(string.Format("{0}: {1} did not start in box", jam.ToString(), player.Number));
                         }
                     }
                     else if (lastPenaltyService != null &&
@@ -294,8 +323,9 @@ namespace StatbookReader
         }
 
         private void ProcessLeftoverBoxes(Dictionary<int, List<Penalty>> playerPenaltyMap, Dictionary<int, List<BoxTime>> playerBoxTimeMap,
-                                                          Dictionary<int, bool> jamFullBoxMap, List<PenaltyService> services)
+                                                          Dictionary<int, bool> jamFullBoxMap, Dictionary<int, int> endJammerMap, List<PenaltyService> services)
         {
+            HandleSpecialCases(playerPenaltyMap, playerBoxTimeMap, services);
             // if there was a penalty in the last jam with no service, ignore it
             RemoveLastJamPenalties(playerPenaltyMap, playerBoxTimeMap, services);
             CheckForBadFoulOuts(services);
@@ -311,7 +341,7 @@ namespace StatbookReader
             bool leftoverPenaltyMap = playerPenaltyMap.Any(kvp => kvp.Value.Any());
             if (leftoverPenaltyMap)
             {
-                HandleLeftoverPenalties(playerPenaltyMap, playerBoxTimeMap, jamFullBoxMap, services);
+                HandleLeftoverPenalties(playerPenaltyMap, playerBoxTimeMap, jamFullBoxMap, endJammerMap, services);
             }
 
             leftoverBoxTimeMap = playerBoxTimeMap.Any(kvp => kvp.Value.Any());
@@ -353,6 +383,36 @@ namespace StatbookReader
             }
         }
 
+        private void HandleSpecialCases(Dictionary<int, List<Penalty>> playerPenaltyMap, Dictionary<int, List<BoxTime>> playerBoxTimeMap, List<PenaltyService> services)
+        {
+            Dictionary<char?, PenaltyService> specialServiceMap = new Dictionary<char?, PenaltyService>();
+            var matchedPenalties = playerPenaltyMap.Values.SelectMany(p => p).Where(p => p.MatchingKey != null).ToList();
+
+            foreach(Penalty specialPenalty in matchedPenalties)
+            {
+                if (!specialServiceMap.ContainsKey(specialPenalty.MatchingKey))
+                {
+                    var matchingBoxes = playerBoxTimeMap.Values.SelectMany(bt => bt).Where(bt => bt.MatchingKey == specialPenalty.MatchingKey).ToList();
+                    if (!matchingBoxes.Any())
+                    {
+                        throw new InvalidDataException("No box times match the special case character " + specialPenalty.MatchingKey);
+                    }
+                    PenaltyService service = new PenaltyService();
+                    // find all boxes that match this special character
+                    foreach (BoxTime bt in matchingBoxes)
+                    {
+                        service.BoxTimes.Add(bt);
+                        playerBoxTimeMap[bt.PlayerID].Remove(bt);
+                    }
+                    specialServiceMap[specialPenalty.MatchingKey] = service;
+                    services.Add(service);
+                }
+
+                specialServiceMap[specialPenalty.MatchingKey].Penalties.Add(specialPenalty);
+                playerPenaltyMap[specialPenalty.PlayerID].Remove(specialPenalty);
+            }
+        }
+
         private void CheckForBadFoulOuts(List<PenaltyService> services)
         {
             var returnedSeventh = services.Where(s => s.Penalties.Count > 0 && s.BoxTimes.Count > 0 && s.Penalties.Last().PenaltyNumber > 6 && !s.BoxTimes.Last().EndedJamInBox);
@@ -373,7 +433,7 @@ namespace StatbookReader
             // 1) didn't serve any time at all, or
             // 2) was still "in the box" at the end of the jam
             var incompleteService = services.Where(s => s.BoxTimes.Count > 0 && s.BoxTimes.Last().EndedJamInBox && !s.BoxTimes.Last().Finished && s.BoxTimes.Last().JamID != _lastJam.ID);
-            var leftoverBoxes = playerBoxMap.Values.SelectMany(p => p).ToList();
+            var leftoverBoxes = playerBoxMap.Values.SelectMany(p => p).Where(b => b.FullService != true).ToList();
             foreach (PenaltyService service in incompleteService)
             {
                 Penalty lastPenalty = service.Penalties.Last();
@@ -382,7 +442,7 @@ namespace StatbookReader
                 Player penaltyPlayer = _players[lastPenalty.PlayerID];
 
                 // when the penalized served some time, we can't be sure it wasn't sufficient time
-                var boxes = leftoverBoxes.Where(bt => bt.JamID == lastPenalty.JamID + 1 && (bt.IsJammer == lastBox.IsJammer));
+                var boxes = leftoverBoxes.Where(bt => bt.JamID == lastPenalty.JamID + 1 && (bt.IsJammer == lastBox.IsJammer) && (bt.IsPivot == lastBox.IsPivot) && (bt.FullService != true));
                 BoxTime bestBox = boxes.Any() && (!requireSingleMatch || boxes.Count() == 1) ? boxes.First() : null;
 
                 if (bestBox != null)
@@ -438,7 +498,7 @@ namespace StatbookReader
         }
 
         private void HandleLeftoverPenalties(Dictionary<int, List<Penalty>> playerPenaltyMap, Dictionary<int, List<BoxTime>> playerBoxMap, 
-                                             Dictionary<int, bool> jamFullBoxMap, List<PenaltyService> services)
+                                             Dictionary<int, bool> jamFullBoxMap, Dictionary<int, int> endJammerMap, List<PenaltyService> services)
         {
             var leftoverPenalties = playerPenaltyMap.Values.SelectMany(p => p).ToList();
             var leftoverBoxes = playerBoxMap.Values.SelectMany(p => p).ToList();
@@ -449,11 +509,15 @@ namespace StatbookReader
                 Penalty penalty = leftoverPenalties[0];
                 Jam penaltyJam = _jams.First(j => j.ID == penalty.JamID);
                 Player penaltyPlayer = _players[penalty.PlayerID];
+                bool wasEndJammer = endJammerMap.ContainsKey(penaltyJam.ID) && endJammerMap[penaltyJam.ID] == penaltyPlayer.ID;
                 PenaltyService service = new PenaltyService();
                 service.Penalties.Add(penalty);
                 // if no time was served, it's conceivable the penalty didn't get served until later on
                 // TODO: confirm jammer penalty+service matching
-                var matchingBoxes = leftoverBoxes.Where(bt => (bt.JamID > penalty.JamID)|| (bt.JamID == penalty.JamID && bt.PlayerID == penalty.PlayerID)).OrderBy(bt => bt.JamID);
+                var matchingBoxes = leftoverBoxes
+                    .Where(bt => (bt.JamID > penalty.JamID && bt.IsJammer == wasEndJammer) || 
+                                 (bt.JamID == penalty.JamID && bt.PlayerID == penalty.PlayerID))
+                    .OrderBy(bt => bt.JamID);
                 if (matchingBoxes.Any())
                 {
                     BoxTime bestBox = matchingBoxes.First();
@@ -540,6 +604,10 @@ namespace StatbookReader
                 PenaltyService service = new PenaltyService();
                 BoxTime lastBoxTime = playerBoxTimes[boxTimeIndex];
                 service.BoxTimes.Add(lastBoxTime);
+                if(lastBoxTime.MatchingKey != null)
+                {
+                    service.ServiceKey = lastBoxTime.MatchingKey;
+                }
                 boxTimeIndex++;
 
                 while (lastBoxTime.EndedJamInBox && boxTimeIndex < playerBoxTimes.Count)
@@ -591,7 +659,8 @@ namespace StatbookReader
                         PlayerID = playerPenalty.Key,
                         PenaltyCode = penaltyModel.PenaltyCode,
                         PenaltyNumber = penaltyCount,
-                        JamID = jam.ID
+                        JamID = jam.ID,
+                        MatchingKey = penaltyModel.SpecificKey
                     };
                     penaltyCount++;
                     jamPenaltyMap[jam.ID].Add(penalty);
@@ -627,8 +696,15 @@ namespace StatbookReader
                                 EndedJamInBox = !model.Exited,
                                 StartedJamInBox = model.Started,
                                 IsJammer = model.IsJammer,
-                                Finished = false
+                                IsPivot = model.IsPivot,
+                                Finished = false,
+                                FullService = model.IsFullService,
+                                MatchingKey = model.SpecialKey
                             };
+                            if (boxTime.MatchingKey != null)
+                            {
+                                Console.WriteLine(string.Format("Special case code {0} encountered in jamId {1}", boxTime.MatchingKey, boxTime.JamID));
+                            }
                             jamBoxTimeMap[jamBoxTimes.Key].Add(boxTime);
                             playerBoxTimeMap[pjbtMap.Key].Add(boxTime);
                         }
@@ -650,6 +726,11 @@ namespace StatbookReader
                     int previousJamID = GetPreviousJamID(currentBoxTime.JamID);
                     if(currentBoxTime.StartedJamInBox == null)
                     {
+                        if(currentBoxTime.MatchingKey != null)
+                        {
+                            currentBoxTime.StartedJamInBox = false;
+                            continue;
+                        }
                         var previousBoxTime = playerBoxTime.Value[i - 1];
                         // if the player ended the previous jam in the box, this box time started in the box
                         if(previousBoxTime.EndedJamInBox && previousBoxTime.JamID == previousJamID)

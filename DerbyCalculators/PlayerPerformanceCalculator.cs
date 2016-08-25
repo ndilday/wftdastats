@@ -26,7 +26,7 @@ namespace DerbyCalculators
             connection.Open();
             SqlTransaction transaction = connection.BeginTransaction();
             var players = new PlayerGateway(connection, transaction).GetPlayersForTeam(teamID).ToDictionary(p => p.ID);
-            var jams = new JamGateway(connection, transaction).GetJamsForTeamAfterDate(teamID, new DateTime(2015,1,1)).OrderBy(j => j.ID);
+            var jams = new JamGateway(connection, transaction).GetJamsForTeamAfterDate(teamID, new DateTime(2016,1,1)).OrderBy(j => j.ID);
             var jamBoutMap = jams.ToDictionary(j => j.ID, j => j.BoutID);
             var jpe = new JamPlayerEffectivenessGateway(connection, transaction).GetJamPlayerEffectivenessForTeam(teamID);
             var jamData = new JamDataGateway(connection, transaction).GetJamDataForTeam(teamID).ToDictionary(jd => jd.JamID);
@@ -131,6 +131,13 @@ namespace DerbyCalculators
                 RollUpPlayerPerformance(avgPenCost, jamTotalPortionMap, pp);
             }
 
+            CalculateTeamAverages(pps, bouts);
+            foreach(PlayerPerformance pp in pps.Values)
+            {
+                pp.BlockerPerformance.PlayerValueVersusTeamAverage = pp.Bouts.Sum(b => b.BlockerPerformance.PlayerValueVersusTeamAverage);
+                pp.JammerPerformance.PlayerValueVersusTeamAverage = pp.Bouts.Sum(b => b.JammerPerformance.PlayerValueVersusTeamAverage);
+            }
+
             return pps.Values.ToList();
         }
 
@@ -141,7 +148,7 @@ namespace DerbyCalculators
             connection.Open();
             SqlTransaction transaction = connection.BeginTransaction();
             var players = new PlayerGateway(connection, transaction).GetPlayersForTeam(teamID).ToDictionary(p => p.ID);
-            var jams = new JamGateway(connection, transaction).GetJamsForTeam(teamID).OrderBy(j => j.ID);
+            var jams = new JamGateway(connection, transaction).GetJamsForTeamAfterDate(teamID, new DateTime(2016, 1, 1)).OrderBy(j => j.ID);
             var jamBoutMap = jams.ToDictionary(j => j.ID, j => j.BoutID);
             var jpe = new JamPlayerEffectivenessGateway(connection, transaction).GetJamPlayerEffectivenessForTeam(teamID);
             var jamData = new JamDataGateway(connection, transaction).GetJamDataForTeam(teamID).ToDictionary(jd => jd.JamID);
@@ -581,6 +588,7 @@ namespace DerbyCalculators
                     rollUp.TotalPenaltyCost += jp.PenaltyCost;
                     rollUp.TotalPointsVersusMedian += jp.DeltaPortionVersusMedian;
                     rollUp.TotalPlayerValue += jp.PlayerValue;
+
                 }
 
                 pp.BlockerPerformance.TotalJamPortions += bp.BlockerPerformance.TotalJamPortions;
@@ -628,6 +636,60 @@ namespace DerbyCalculators
                 pp.JammerPerformance.TotalPenaltyCost += bp.JammerPerformance.TotalPenaltyCost;
                 pp.JammerPerformance.TotalPointsVersusMedian += bp.JammerPerformance.TotalPointsVersusMedian;
                 pp.JammerPerformance.TotalPlayerValue += bp.JammerPerformance.TotalPlayerValue;
+            }
+        }
+
+        private void CalculateTeamAverages(Dictionary<int, PlayerPerformance> pps, Dictionary<int, Bout> bouts)
+        {
+            Dictionary<int, List<RolledUpPerformanceData>> boutJammerPerformanceMap, boutBlockerPerformanceMap;
+            boutJammerPerformanceMap = new Dictionary<int, List<RolledUpPerformanceData>>();
+            boutBlockerPerformanceMap = new Dictionary<int, List<RolledUpPerformanceData>>();
+            // for each bout, populate all of the performance rollups
+            foreach(PlayerPerformance pp in pps.Values)
+            {
+                foreach(BoutPerformance bp in pp.Bouts)
+                {
+                    if(bp.JammerPerformance.TotalJamPortions > 0)
+                    {
+                        if(!boutJammerPerformanceMap.ContainsKey(bp.BoutID))
+                        {
+                            boutJammerPerformanceMap[bp.BoutID] = new List<RolledUpPerformanceData>();
+                        }
+                        boutJammerPerformanceMap[bp.BoutID].Add(bp.JammerPerformance);
+                    }
+                    if(bp.BlockerPerformance.TotalJamPortions > 0)
+                    {
+                        if (!boutBlockerPerformanceMap.ContainsKey(bp.BoutID))
+                        {
+                            boutBlockerPerformanceMap[bp.BoutID] = new List<RolledUpPerformanceData>();
+                        }
+                        boutBlockerPerformanceMap[bp.BoutID].Add(bp.BlockerPerformance);
+                    }
+                }
+            }
+            foreach(List<RolledUpPerformanceData> boutRollups in boutJammerPerformanceMap.Values)
+            {
+                double jams = boutRollups.Sum(br => br.TotalJamPortions);
+                double totalPVM = boutRollups.Sum(br => br.TotalPointsVersusMedian);
+                double totalValue = boutRollups.Sum(br => br.TotalPlayerValue);
+                double averagePVM = totalPVM / jams;
+                double averageValue = totalValue / jams;
+                foreach(RolledUpPerformanceData rollup in boutRollups)
+                {
+                    rollup.PlayerValueVersusTeamAverage = rollup.TotalPlayerValue - (averageValue * rollup.TotalJamPortions);
+                }
+            }
+            foreach (List<RolledUpPerformanceData> boutRollups in boutBlockerPerformanceMap.Values)
+            {
+                double jams = boutRollups.Sum(br => br.TotalJamPortions);
+                double totalPVM = boutRollups.Sum(br => br.TotalPointsVersusMedian);
+                double totalValue = boutRollups.Sum(br => br.TotalPlayerValue);
+                double averagePVM = totalPVM / jams;
+                double averageValue = totalValue / jams;
+                foreach (RolledUpPerformanceData rollup in boutRollups)
+                {
+                    rollup.PlayerValueVersusTeamAverage = rollup.TotalPlayerValue - (averageValue * rollup.TotalJamPortions);
+                }
             }
         }
 

@@ -6,6 +6,7 @@
         public int JamID { get; set; }
         public string PenaltyCode { get; set; }
         public int PenaltyNumber { get; set; }
+        public char? MatchingKey { get; set; }
         public bool CanGetInBox()
         {
             return PenaltyCode == "I" || PenaltyCode == "N" || PenaltyCode == "Z" || PenaltyCode == "G";

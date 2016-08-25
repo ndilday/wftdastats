@@ -17,11 +17,14 @@ namespace QuickTester
         static void Main(string[] args)
         {
             string connString = ConfigurationManager.ConnectionStrings["derby"].ConnectionString;
-            string basicConnString = ConfigurationManager.ConnectionStrings["basicderby"].ConnectionString;
+            //RinxterDataImporter importer = new RinxterDataImporter();
+            //importer.Import(connString, false);
+            
+            //string basicConnString = ConfigurationManager.ConnectionStrings["basicderby"].ConnectionString;
             //BasicProcessStatsheetDirectory(basicConnString, args[0]);
-            ProcessStatsheetDirectory(connString, args[0]);
+            ProcessStatsheetDirectory(connString, args[0], true);
             SetUpCalculatedTables(connString);
-            //CreatePlayerPerformanceCsv(connString);
+            CreatePlayerPerformanceCsv(connString);
             /*int iterations = 10;
             var foo = new PlayerPerformanceCalculator(connString).GetAllPlayerPointPerformances(iterations);
             var sorted = foo[0].Keys.OrderBy(k => k);
@@ -43,7 +46,7 @@ namespace QuickTester
             output.Close();*/
         }
 
-        static void ProcessStatsheetDirectory(string connString, string directoryPath)
+        static void ProcessStatsheetDirectory(string connString, string directoryPath, bool assumeATeams)
         {
             if (!Directory.Exists(directoryPath))
             {
@@ -59,7 +62,7 @@ namespace QuickTester
                     Console.WriteLine("Processing " + path);
                     timer.Restart();
                     StatbookModel model = StatbookReader.StatbookReader.ReadStatbook(path);
-                    importer.Import(connString, model);
+                    importer.Import(connString, model, assumeATeams);
                     timer.Stop();
                     Console.WriteLine("Finished Processing " + path + ": " + timer.Elapsed.TotalSeconds);
                 }

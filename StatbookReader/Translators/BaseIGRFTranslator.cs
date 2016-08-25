@@ -33,6 +33,7 @@ namespace StatbookReader.Translators
     internal abstract class BaseIGRFTranslator
     {
         protected StatbookCells _cells;
+        protected HashSet<string> _dupePlayerCheck;
         protected StatbookModel CreateStatbook(ExcelWorkbook workbook)
         {
             ExcelWorksheet irgf = workbook.Worksheets["IGRF"];
@@ -81,7 +82,7 @@ namespace StatbookReader.Translators
                 {
                     PlayerModel player = new PlayerModel();
 
-                    player.Number = numberCell.ToString();
+                    player.Number = numberCell.ToString().Trim();
                     player.Name = homeStart.Offset(i, 1).Value.ToString();
                     statbook.HomeTeam.Players.Add(player);
                 }
@@ -90,7 +91,7 @@ namespace StatbookReader.Translators
                 if (numberCell != null && !string.IsNullOrWhiteSpace(numberCell.ToString()))
                 {
                     PlayerModel player = new PlayerModel();
-                    player.Number = numberCell.ToString();
+                    player.Number = numberCell.ToString().Trim();
                     player.Name = awayStart.Offset(i, 1).Value.ToString();
                     statbook.AwayTeam.Players.Add(player);
                 }
@@ -133,6 +134,8 @@ namespace StatbookReader.Translators
                     bool isSP = nextJamNumber == null ? false : nextJamNumber.Trim().ToLowerInvariant() == "sp";
                     jamLineup.HomeLineup = new List<PlayerLineupModel>();
                     bool hasPivot = homeLineupStart.SubRange(currentRow, 2).Value == null;
+                    _dupePlayerCheck = new HashSet<string>();
+                    // TODO: do error checking here
                     jamLineup.HomeLineup.Add(CreateJamPlayer(homeLineupStart.SubRange(currentRow, 3), true, false, isSP));
                     jamLineup.HomeLineup.Add(CreateJamPlayer(homeLineupStart.SubRange(currentRow, 7), false, hasPivot, isSP));
                     jamLineup.HomeLineup.Add(CreateJamPlayer(homeLineupStart.SubRange(currentRow, 11), false, false, isSP));
@@ -143,6 +146,8 @@ namespace StatbookReader.Translators
                     isSP = nextJamNumber == null ? false : nextJamNumber.Trim().ToLowerInvariant() == "sp";
                     jamLineup.AwayLineup = new List<PlayerLineupModel>();
                     hasPivot = awayLineupStart.SubRange(currentRow, 2).Value == null;
+                    _dupePlayerCheck = new HashSet<string>();
+                    // TODO: do error checking here
                     jamLineup.AwayLineup.Add(CreateJamPlayer(awayLineupStart.SubRange(currentRow, 3), true, false, isSP));
                     jamLineup.AwayLineup.Add(CreateJamPlayer(awayLineupStart.SubRange(currentRow, 7), false, hasPivot, isSP));
                     jamLineup.AwayLineup.Add(CreateJamPlayer(awayLineupStart.SubRange(currentRow, 11), false, false, isSP));
@@ -171,7 +176,11 @@ namespace StatbookReader.Translators
             {
                 return null;
             }
-            model.PlayerNumber = value.ToString();
+            model.PlayerNumber = value.ToString().Trim();
+            if(_dupePlayerCheck.Contains(model.PlayerNumber))
+            {
+                return null;
+            }
             model.IsJammer = isJammer;
             model.IsPivot = isPivot;
             model.WasInjured = false;
@@ -297,7 +306,8 @@ namespace StatbookReader.Translators
                 object playerObj = firstHalfFouls.SubRange(rowOffset, 1).Value;
                 if (playerObj == null || string.IsNullOrWhiteSpace(playerObj.ToString()))
                 {
-                    break;
+                    rowOffset += 2;
+                    continue;
                 }
                 PlayerPenaltiesModel model = new PlayerPenaltiesModel();
                 model.PlayerNumber = playerObj.ToString();
@@ -330,12 +340,20 @@ namespace StatbookReader.Translators
                     columnOffset++;
                     continue;
                 }
+                string foulType = foulTypeObj.ToString().Trim();
+                char? specialKey = null;
+                if(foulType.Length > 1)
+                {
+                    specialKey = foulType[1];
+                    foulType = foulType.Substring(0, 1);
+                }
                 int jamNumber = Convert.ToInt32(penalties.SubRange(rowOffset + 1, columnOffset).Value);
                 PenaltyModel penalty = new PenaltyModel
                 {
                     IsFirstHalf = isFirstHalf,
                     JamNumber = jamNumber,
-                    PenaltyCode = foulTypeObj.ToString()
+                    PenaltyCode = foulType,
+                    SpecificKey = specialKey
                 };
                 list.Add(penalty);
                 columnOffset++;

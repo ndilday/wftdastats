@@ -10,6 +10,7 @@ namespace DerbyDataModels
         public int TotalPenalties { get; set; }
         public double TotalPenaltyCost { get; set; }
         public double TotalPlayerValue { get; set; }
+        public double PlayerValueVersusTeamAverage { get; set; }
         public RolledUpPerformanceData()
         {
             TotalPointsVersusMedian = TotalJamPortions = TotalPenaltyCost = TotalPlayerValue = 0.0;

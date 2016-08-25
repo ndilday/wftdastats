@@ -15,7 +15,7 @@ namespace StatbookReader
     {
         private SqlConnection _connection;
         private SqlTransaction _transaction;
-        public void Import(string connectionString, StatbookModel statbook)
+        public void Import(string connectionString, StatbookModel statbook, bool assumeATeams)
         {
             _connection = new SqlConnection(connectionString);
             try
@@ -42,12 +42,18 @@ namespace StatbookReader
 
                 // insert teams
                 TeamGateway teamGateway = new TeamGateway(_connection, _transaction);
-                //Team homeTeam = teamGateway.GetTeam(statbook.HomeTeam.Name, homeLeague.ID, "A", false);
-                //Team awayTeam = teamGateway.GetTeam(statbook.AwayTeam.Name, awayLeague.ID, "A", false);
-                Team homeTeam = teamGateway.GetATeam(homeLeague.ID);
-                Team awayTeam = teamGateway.GetATeam(awayLeague.ID);
+                Team homeTeam, awayTeam;
+                if (assumeATeams)
+                {
+                    homeTeam = teamGateway.GetATeam(homeLeague.ID);
+                    awayTeam = teamGateway.GetATeam(awayLeague.ID);
 
-
+                }
+                else
+                {
+                    homeTeam = teamGateway.GetTeam(statbook.HomeTeam.Name, homeLeague.ID, "A", false);
+                    awayTeam = teamGateway.GetTeam(statbook.AwayTeam.Name, awayLeague.ID, "A", false);
+                }
 
                 // insert bout
                 BoutGateway boutGateway = new BoutGateway(_connection, _transaction);
@@ -86,7 +92,7 @@ namespace StatbookReader
             AddScores(homePlayerMap, awayPlayerMap, jamList, statbook.Scores);
 
             // import penalties/box times
-            AddPenaltyServices(homePlayerMap, awayPlayerMap, jamList, statbook.Lineups, statbook.Penalties);
+            AddPenaltyServices(homePlayerMap, awayPlayerMap, jamList, statbook.Lineups, statbook.Scores, statbook.Penalties);
         }
 
         private Dictionary<string, Player> CreatePlayerMap(Team team, IList<PlayerModel> list)
@@ -136,7 +142,6 @@ namespace StatbookReader
             {
                 if(lineup == null)
                 {
-                    // TODO: handle null players
                     Console.WriteLine(jam.ToString() + ": empty player spot");
                     continue;
                 }
@@ -193,22 +198,34 @@ namespace StatbookReader
         }
     
         private void AddPenaltyServices(Dictionary<string, Player> homePlayerMap, Dictionary<string, Player> awayPlayerMap, 
-                                        IList<Jam> jams, IList<JamLineupModel> lineups, PenaltiesModel penalties)
+                                        IList<Jam> jams, IList<JamLineupModel> lineups, IList<JamScoreModel> scores, PenaltiesModel penalties)
         {
             Dictionary<int, Dictionary<int, IList<Models.BoxTimeModel>>> homePlayerBoxTimeMap = new Dictionary<int, Dictionary<int, IList<Models.BoxTimeModel>>>();
             Dictionary<int, Dictionary<int, IList<Models.BoxTimeModel>>> awayPlayerBoxTimeMap = new Dictionary<int, Dictionary<int, IList<Models.BoxTimeModel>>>();
+            Dictionary<int, int> homeEndJammerMap = new Dictionary<int, int>();
+            Dictionary<int, int> awayEndJammerMap = new Dictionary<int, int>();
             foreach (JamLineupModel jamLineup in lineups)
             {
                 Jam jam = jams.First(j => j.IsFirstHalf == jamLineup.IsFirstHalf && j.JamNumber == jamLineup.JamNumber);
+                JamScoreModel jsm = scores.First(s => s.IsFirstHalf == jam.IsFirstHalf && s.JamNumber == jam.JamNumber);
                 foreach (PlayerLineupModel playerLineup in jamLineup.HomeLineup)
                 {
                     if(playerLineup == null)
                     {
                         continue;
                     }
+                    int playerID = homePlayerMap[playerLineup.PlayerNumber].ID;
+                    if (playerLineup.IsJammer && jsm.HomeStarPass == null)
+                    {
+                        homeEndJammerMap[jam.ID] = playerID;
+                    }
+                    else if(playerLineup.IsPivot && jsm.HomeStarPass != null)
+                    {
+                        homeEndJammerMap[jam.ID] = playerID;
+                    }
                     if (playerLineup.BoxTimes != null && playerLineup.BoxTimes.Any())
                     {
-                        int playerID = homePlayerMap[playerLineup.PlayerNumber].ID;
+                        
                         if (!homePlayerBoxTimeMap.ContainsKey(playerID))
                         {
                             homePlayerBoxTimeMap[playerID] = new Dictionary<int, IList<Models.BoxTimeModel>>();
@@ -222,9 +239,17 @@ namespace StatbookReader
                     {
                         continue;
                     }
+                    int playerID = awayPlayerMap[playerLineup.PlayerNumber].ID;
+                    if (playerLineup.IsJammer && jsm.HomeStarPass == null)
+                    {
+                        awayEndJammerMap[jam.ID] = playerID;
+                    }
+                    else if (playerLineup.IsPivot && jsm.HomeStarPass != null)
+                    {
+                        awayEndJammerMap[jam.ID] = playerID;
+                    }
                     if (playerLineup.BoxTimes != null && playerLineup.BoxTimes.Any())
                     {
-                        int playerID = awayPlayerMap[playerLineup.PlayerNumber].ID;
                         if (!awayPlayerBoxTimeMap.ContainsKey(playerID))
                         {
                             awayPlayerBoxTimeMap[playerID] = new Dictionary<int, IList<Models.BoxTimeModel>>();
@@ -238,7 +263,7 @@ namespace StatbookReader
             Dictionary<int, PlayerPenaltiesModel> awayPlayerPenalties = penalties.AwayPlayerPenalties.ToDictionary(pp => awayPlayerMap[pp.PlayerNumber].ID);
 
             PenaltyProcessor processor = new PenaltyProcessor(jams, homePlayerMap, awayPlayerMap);
-            var service = processor.ProcessPenalties(homePlayerBoxTimeMap, homePlayerPenalties, awayPlayerBoxTimeMap, awayPlayerPenalties);
+            var service = processor.ProcessPenalties(homePlayerBoxTimeMap, homePlayerPenalties, homeEndJammerMap, awayPlayerBoxTimeMap, awayPlayerPenalties, awayEndJammerMap);
             PenaltyGateway penaltyGateway = new PenaltyGateway(_connection, _transaction);
             penaltyGateway.AddPenalties(service);
         }

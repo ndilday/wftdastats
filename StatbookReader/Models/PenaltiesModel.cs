@@ -8,6 +8,7 @@ namespace StatbookReader.Models
         public bool IsFirstHalf { get; set; }
         public int JamNumber { get; set; }
         public string PenaltyCode { get; set; }
+        public char? SpecificKey { get; set; }
     }
 
     public class PlayerPenaltiesModel

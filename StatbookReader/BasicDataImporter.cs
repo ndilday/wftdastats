@@ -130,10 +130,11 @@ namespace StatbookReader
                     Console.WriteLine(jam.ToString() + ": empty player spot");
                     continue;
                 }
-                if(duplicateCheckList.Contains(lineup.PlayerNumber))
+                if (duplicateCheckList.Contains(lineup.PlayerNumber))
                 {
                     throw new InvalidOperationException(string.Format("{0}: #{1} in lineup multiple times.", jam, lineup.PlayerNumber));
                 }
+
                 duplicateCheckList.Add(lineup.PlayerNumber);
                 Player player = playerMap[lineup.PlayerNumber];
                 list.Add(gateway.AddJamPlayer(jam.ID, player.ID, player.TeamID, lineup.IsJammer, lineup.IsPivot));
@@ -210,8 +211,13 @@ namespace StatbookReader
                         JamID = jam.ID,
                         PlayerID = kvp.Key,
                         PenaltyCode = penalty.PenaltyCode,
-                        PenaltyNumber = penaltyCount
+                        PenaltyNumber = penaltyCount,
+                        MatchingKey = penalty.SpecificKey
                     };
+                    if(pen.MatchingKey != null)
+                    {
+                        Console.WriteLine(string.Format("Special case penalty {0}{1} encountered in {2}", penalty.PenaltyCode, penalty.SpecificKey, penalty.JamNumber));
+                    }
                     penaltyGateway.AddBasicPenalty(pen);
                 }
             }

@@ -51,13 +51,20 @@ namespace StatbookReader.Translators
             // check each foul box for this player in this jam
             while (foulCol < 5)
             {
-                object foulMark = playerRange.SubRange(1, foulCol).Value;
-                if (foulMark == null)
+                object foulMarkObj = playerRange.SubRange(1, foulCol).Value;
+                if (foulMarkObj == null)
                 {
                     break;
                 }
                 BoxTimeModel boxTime;
                 bool isJammer = player.IsJammer;
+                string foulMark = foulMarkObj.ToString().Trim();
+                char? specialKey = null;
+                if(foulMark.Length > 1)
+                {
+                    specialKey = foulMark[1];
+                    foulMark = foulMark.Substring(0, 1);
+                }
                 switch (foulMark.ToString().Trim())
                 {
                     case "x":
@@ -66,7 +73,10 @@ namespace StatbookReader.Translators
                         {
                             Started = false,
                             Exited = true,
-                            IsJammer = player.IsJammer
+                            IsJammer = player.IsJammer,
+                            IsPivot = player.IsPivot,
+                            IsFullService = true,
+                            SpecialKey = specialKey
                         };
                         player.BoxTimes.Add(boxTime);
                         break;
@@ -76,7 +86,10 @@ namespace StatbookReader.Translators
                         {
                             Started = false,
                             Exited = false,
-                            IsJammer = player.IsJammer
+                            IsJammer = player.IsJammer,
+                            IsPivot =player.IsPivot,
+                            IsFullService = false,
+                            SpecialKey = specialKey
                         };
                         player.BoxTimes.Add(boxTime);
                         break;
@@ -86,7 +99,10 @@ namespace StatbookReader.Translators
                         {
                             Started = true,
                             Exited = false,
-                            IsJammer = player.IsJammer
+                            IsJammer = player.IsJammer,
+                            IsPivot = player.IsPivot,
+                            IsFullService = false,
+                            SpecialKey = specialKey
                         };
                         player.BoxTimes.Add(boxTime);
                         break;
@@ -95,7 +111,9 @@ namespace StatbookReader.Translators
                         {
                             Started = true,
                             Exited = true,
-                            IsJammer = player.IsJammer
+                            IsJammer = player.IsJammer,
+                            IsPivot = player.IsPivot,
+                            SpecialKey = specialKey
                         };
                         player.BoxTimes.Add(boxTime);
                         break;
@@ -122,12 +140,19 @@ namespace StatbookReader.Translators
                 // check each foul box for this player in this jam
                 while (foulCol < stop)
                 {
-                    object foulMark = playerRange.SubRange(2, foulCol).Value;
-                    if (foulMark == null)
+                    object foulMarkObj = playerRange.SubRange(2, foulCol).Value;
+                    if (foulMarkObj == null)
                     {
                         break;
                     }
                     BoxTimeModel boxTime;
+                    string foulMark = foulMarkObj.ToString().Trim();
+                    char? specialKey = null;
+                    if (foulMark.Length > 1)
+                    {
+                        specialKey = foulMark[1];
+                        foulMark = foulMark.Substring(0, 1);
+                    }
                     switch (foulMark.ToString().Trim())
                     {
                         case "x":
@@ -142,7 +167,10 @@ namespace StatbookReader.Translators
                                 {
                                     Started = false,
                                     Exited = true,
-                                    IsJammer = player.IsPivot
+                                    IsJammer = player.IsPivot,
+                                    IsPivot = false,
+                                    IsFullService = true,
+                                    SpecialKey = specialKey
                                 };
                                 player.BoxTimes.Add(boxTime);
                             }
@@ -153,7 +181,10 @@ namespace StatbookReader.Translators
                             {
                                 Started = false,
                                 Exited = false,
-                                IsJammer = player.IsPivot
+                                IsJammer = player.IsPivot,
+                                IsPivot = false,
+                                IsFullService = false,
+                                SpecialKey = specialKey
                             };
                             player.BoxTimes.Add(boxTime);
                             break;
@@ -164,6 +195,10 @@ namespace StatbookReader.Translators
                             if (lastBox != null)
                             {
                                 lastBox.Exited = true;
+                                if(lastBox.Started == false)
+                                {
+                                    lastBox.IsFullService = true;
+                                }
                             }
                             else
                             {

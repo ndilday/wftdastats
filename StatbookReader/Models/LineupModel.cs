@@ -11,6 +11,9 @@ namespace StatbookReader.Models
         public bool? Started { get; set; }
         public bool Exited { get; set; }
         public bool IsJammer { get; set; }
+        public bool IsPivot { get; set; }
+        public bool? IsFullService { get; set; }
+        public char? SpecialKey { get; set; }
     }
 
     public class PlayerLineupModel

@@ -6,6 +6,7 @@ namespace DerbyDataModels
     {
         public List<Penalty> Penalties { get; private set; }
         public List<BoxTime> BoxTimes { get; private set; }
+        public char? ServiceKey { get; set; }
         public PenaltyService()
         {
             Penalties = new List<Penalty>();

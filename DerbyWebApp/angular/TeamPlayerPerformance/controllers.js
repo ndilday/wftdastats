@@ -102,7 +102,7 @@ app.controller('PlayerPointsPerformanceController', function ($scope, $filter, $
                     actualDelta: '',
                     totalPVM: $filter('number')(bp.TotalPointsVersusMedian, 2),
                     averagePVM: $filter('number')(bp.TotalPointsVersusMedian / bp.TotalJamPortions, 2),
-                    averageValue: $filter('number')(bp.TotalPlayerValue / bp.TotalJamPortions, 2),
+                    averageValue: $filter('number')(bp.PlayerValueVersusTeamAverage / bp.TotalJamPortions, 2),
                     children: []
                 };
                 result.blockers.push(blocker);
@@ -123,7 +123,7 @@ app.controller('PlayerPointsPerformanceController', function ($scope, $filter, $
                     actualDelta: '',
                     totalPVM: $filter('number')(jp.TotalPointsVersusMedian, 2),
                     averagePVM: $filter('number')(jp.TotalPointsVersusMedian / jp.TotalJamPortions, 2),
-                    averageValue: $filter('number')(jp.TotalPlayerValue / jp.TotalJamPortions, 2),
+                    averageValue: $filter('number')(jp.PlayerValueVersusTeamAverage / jp.TotalJamPortions, 2),
                     children: []
                 };
                 result.jammers.push(jammer);
@@ -154,7 +154,7 @@ app.controller('PlayerPointsPerformanceController', function ($scope, $filter, $
                     actualDelta: '',
                     totalPVM: $filter('number')(bb.TotalPointsVersusMedian, 2),
                     averagePVM: $filter('number')(bb.TotalPointsVersusMedian / bb.TotalJamPortions, 2),
-                    averageValue: $filter('number')(bb.TotalPlayerValue / bb.TotalJamPortions, 2),
+                    averageValue: $filter('number')(bb.PlayerValueVersusTeamAverage / bb.TotalJamPortions, 2),
                     children: []
                 };
                 blocker.children.push(bBout);
@@ -175,7 +175,7 @@ app.controller('PlayerPointsPerformanceController', function ($scope, $filter, $
                     actualDelta: '',
                     totalPVM: $filter('number')(jb.TotalPointsVersusMedian, 2),
                     averagePVM: $filter('number')(jb.TotalPointsVersusMedian / jb.TotalJamPortions, 2),
-                    averageValue: $filter('number')(jb.TotalPlayerValue / jb.TotalJamPortions, 2),
+                    averageValue: $filter('number')(jb.PlayerValueVersusTeamAverage / jb.TotalJamPortions, 2),
                     children: []
                 };
                 jammer.children.push(jBout);
@@ -209,10 +209,10 @@ app.controller('PlayerPointsPerformanceController', function ($scope, $filter, $
                 averagePVM: '',
                 averageValue: '',
             };
-            if (jamList[j].JammerJamPercentage > 0) {
+            if (jamList[j].JammerJamPercentage > 0 || (jBout != null && bBout == null)) {
                 jBout.children.push(newEntry);
             }
-            else {
+            else if(bBout != null) {
                 bBout.children.push(newEntry);
             }
         }
@@ -349,7 +349,7 @@ app.controller('PlayerValuePerformanceController', function ($scope, $filter, $q
                     actualDelta: '',
                     totalPVM: $filter('number')(bp.TotalPointsVersusMedian * 100, 2),
                     averagePVM: $filter('number')(bp.TotalPointsVersusMedian * 100 / bp.TotalJamPortions, 2),
-                    averageValue: $filter('number')(bp.TotalPlayerValue * 100 / bp.TotalJamPortions, 2),
+                    averageValue: $filter('number')(bp.PlayerValueVersusTeamAverage * 100 / bp.TotalJamPortions, 2),
                     children: []
                 };
                 result.blockers.push(blocker);
@@ -370,7 +370,7 @@ app.controller('PlayerValuePerformanceController', function ($scope, $filter, $q
                     actualDelta: '',
                     totalPVM: $filter('number')(jp.TotalPointsVersusMedian * 100, 2),
                     averagePVM: $filter('number')(jp.TotalPointsVersusMedian * 100 / jp.TotalJamPortions, 2),
-                    averageValue: $filter('number')(jp.TotalPlayerValue * 100 / jp.TotalJamPortions, 2),
+                    averageValue: $filter('number')(jp.PlayerValueVersusTeamAverage * 100 / jp.TotalJamPortions, 2),
                     children: []
                 };
                 result.jammers.push(jammer);
@@ -401,7 +401,7 @@ app.controller('PlayerValuePerformanceController', function ($scope, $filter, $q
                     actualDelta: '',
                     totalPVM: $filter('number')(bb.TotalPointsVersusMedian * 100, 2),
                     averagePVM: $filter('number')(bb.TotalPointsVersusMedian * 100 / bb.TotalJamPortions, 2),
-                    averageValue: $filter('number')(bb.TotalPlayerValue * 100 / bb.TotalJamPortions, 2),
+                    averageValue: $filter('number')(bb.PlayerValueVersusTeamAverage * 100 / bb.TotalJamPortions, 2),
                     children: []
                 };
                 blocker.children.push(bBout);
@@ -422,7 +422,7 @@ app.controller('PlayerValuePerformanceController', function ($scope, $filter, $q
                     actualDelta: '',
                     totalPVM: $filter('number')(jb.TotalPointsVersusMedian * 100, 2),
                     averagePVM: $filter('number')(jb.TotalPointsVersusMedian * 100 / jb.TotalJamPortions, 2),
-                    averageValue: $filter('number')(jb.TotalPlayerValue * 100 / jb.TotalJamPortions, 2),
+                    averageValue: $filter('number')(jb.PlayerValueVersusTeamAverage * 100 / jb.TotalJamPortions, 2),
                     children: []
                 };
                 jammer.children.push(jBout);

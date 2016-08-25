@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 
 namespace StatbookReader.Models.Rinxter
 {
-    class RinxterScoresModel
+    public class RinxterScoresModel
     {
+        public RinxterScoreRowModel[] rows;
+    }
+
+    public class RinxterScoreRowModel
+    {
+        public int id;
+        public object[] data;
     }
 }
