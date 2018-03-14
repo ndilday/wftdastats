@@ -4,3 +4,4 @@ obj
 *.suo
 QuickTester.csproj.user
 packages
+*.user

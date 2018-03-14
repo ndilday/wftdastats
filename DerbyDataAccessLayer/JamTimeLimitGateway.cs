@@ -17,10 +17,10 @@ namespace DerbyDataAccessLayer
 
         public JamTimeLimitGateway(SqlConnection connection, SqlTransaction transaction) : base(connection, transaction) { }
 
-        public void InsertJamTimeEstimates(IEnumerable<JamTimeEstimate> jamTimeEstimates)
+        public void InsertJamTimeEstimates(IEnumerable<JamTimeEstimate> jamTimeEstimates, bool clearTable = false)
         {
             int counter = 0;
-            string query = s_DeleteJamTimeEstimate + s_InsertJamTimeEstimateQueryBase;
+            string query = clearTable ? s_DeleteJamTimeEstimate + s_InsertJamTimeEstimateQueryBase : s_InsertJamTimeEstimateQueryBase;
             foreach (JamTimeEstimate jamTimeEstimate in jamTimeEstimates)
             {
                 query += String.Format(s_InsertJamTimeEstimateParameter,

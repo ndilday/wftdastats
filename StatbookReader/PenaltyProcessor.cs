@@ -32,14 +32,11 @@ namespace StatbookReader
                                                      Dictionary<int, int> awayEndJammerMap)
         {
             // create penalty and box time maps
-            Dictionary<int, List<BoxTime>> homeJamBoxTimeMap, awayJamBoxTimeMap, allJamBoxTimeMap;
-            Dictionary<int, List<BoxTime>> homePlayerBoxTimeMap, awayPlayerBoxTimeMap;
-            Dictionary<int, List<Penalty>> homeJamPenaltyMap, awayJamPenaltyMap;
-            Dictionary<int, List<Penalty>> homePlayerPenaltyMap, awayPlayerPenaltyMap;
-            TranslatePenaltyDictionary(homePlayerPenaltiesModelMap, out homeJamPenaltyMap, out homePlayerPenaltyMap);
-            TranslatePenaltyDictionary(awayPlayerPenaltiesModelMap, out awayJamPenaltyMap, out awayPlayerPenaltyMap);
-            TranslateBoxTimeDictionary(homePlayerJamBoxTimeMap, out homeJamBoxTimeMap, out homePlayerBoxTimeMap);
-            TranslateBoxTimeDictionary(awayPlayerJamBoxTimeMap, out awayJamBoxTimeMap, out awayPlayerBoxTimeMap);
+            Dictionary<int, List<BoxTime>> allJamBoxTimeMap;
+            TranslatePenaltyDictionary(homePlayerPenaltiesModelMap, out Dictionary<int, List<Penalty>> homeJamPenaltyMap, out Dictionary<int, List<Penalty>> homePlayerPenaltyMap);
+            TranslatePenaltyDictionary(awayPlayerPenaltiesModelMap, out Dictionary<int, List<Penalty>> awayJamPenaltyMap, out Dictionary<int, List<Penalty>> awayPlayerPenaltyMap);
+            TranslateBoxTimeDictionary(homePlayerJamBoxTimeMap, out Dictionary<int, List<BoxTime>> homeJamBoxTimeMap, out Dictionary<int, List<BoxTime>> homePlayerBoxTimeMap);
+            TranslateBoxTimeDictionary(awayPlayerJamBoxTimeMap, out Dictionary<int, List<BoxTime>> awayJamBoxTimeMap, out Dictionary<int, List<BoxTime>> awayPlayerBoxTimeMap);
             var penaltyService = ProcessTeamPenalties(homePlayerBoxTimeMap, homeJamBoxTimeMap, homePlayerPenaltyMap, homeEndJammerMap);
             penaltyService.AddRange(ProcessTeamPenalties(awayPlayerBoxTimeMap, awayJamBoxTimeMap, awayPlayerPenaltyMap, awayEndJammerMap));
             
@@ -268,6 +265,7 @@ namespace StatbookReader
 
                         if (prevJamID != -1 && 
                             nextJamID != -1 && 
+                            !serviceStart.IsJammer &&
                             serviceStart.StartedJamInBox == true && 
                             jamFullBoxMap.ContainsKey(prevJamID) &&
                             jamFullBoxMap[prevJamID] && 
@@ -415,15 +413,24 @@ namespace StatbookReader
 
         private void CheckForBadFoulOuts(List<PenaltyService> services)
         {
-            var returnedSeventh = services.Where(s => s.Penalties.Count > 0 && s.BoxTimes.Count > 0 && s.Penalties.Last().PenaltyNumber > 6 && !s.BoxTimes.Last().EndedJamInBox);
+            var returnedSeventh = services.Where(s => s.Penalties.Count > 0 && s.BoxTimes.Count > 0 && s.Penalties.Last().PenaltyNumber > 6 && !s.BoxTimes.Last().EndedJamInBox && s.BoxTimes.Last().PlayerID == s.Penalties.Last().PlayerID);
             foreach (PenaltyService service in returnedSeventh)
             {
                 Jam penaltyJam = _jams.First(j => j.ID == service.Penalties.Last().JamID);
                 Player penaltyPlayer = _players[service.Penalties.Last().PlayerID];
-                Console.WriteLine(string.Format("{0}: penalty by {1} {2} was 7th, but returned to track!", penaltyJam.ToString(), penaltyPlayer.Number, penaltyPlayer.Name));
-                service.BoxTimes.Last().EndedJamInBox = true;
-                service.BoxTimes.Last().Finished = true;
-                //throw new InvalidDataException(penaltyJam.ToString() + ": penalty by #" + penaltyPlayer.Number + " was 7th, but returned to track!");
+
+                // there is a possibility that a player was accidentally allowed to continue to play
+                // if this is a multi-jam penalty service, log a warning and do nothing
+                if (service.BoxTimes.Count > 1)
+                {
+                    Console.WriteLine(string.Format("{0}: penalty by {1} {2} was 7th, but continued service in the next jam?", penaltyJam.ToString(), penaltyPlayer.Number, penaltyPlayer.Name));
+                }
+                else
+                {
+                    Console.WriteLine(string.Format("{0}: penalty by {1} {2} was 7th, but returned to track!", penaltyJam.ToString(), penaltyPlayer.Number, penaltyPlayer.Name));
+                    service.BoxTimes.Last().EndedJamInBox = true;
+                    service.BoxTimes.Last().Finished = true;
+                }
             }
         }
 
@@ -455,10 +462,10 @@ namespace StatbookReader
                     service.BoxTimes.Add(bestBox);
                     leftoverBoxes.Remove(bestBox);
                     playerBoxMap[bestBox.PlayerID].Remove(bestBox);
-                    if (bestBox.StartedJamInBox == null)
-                    {
+                    //if (bestBox.StartedJamInBox == null)
+                    //{
                         bestBox.StartedJamInBox = true;
-                    }
+                    //}
 
                     // get the ending jam of the service
                     while (bestBox.EndedJamInBox && bestBox.JamID < _lastJam.ID)
@@ -726,11 +733,11 @@ namespace StatbookReader
                     int previousJamID = GetPreviousJamID(currentBoxTime.JamID);
                     if(currentBoxTime.StartedJamInBox == null)
                     {
-                        if(currentBoxTime.MatchingKey != null)
+                        /*if(currentBoxTime.MatchingKey != null)
                         {
                             currentBoxTime.StartedJamInBox = false;
                             continue;
-                        }
+                        }*/
                         var previousBoxTime = playerBoxTime.Value[i - 1];
                         // if the player ended the previous jam in the box, this box time started in the box
                         if(previousBoxTime.EndedJamInBox && previousBoxTime.JamID == previousJamID)

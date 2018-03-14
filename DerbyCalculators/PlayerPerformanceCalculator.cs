@@ -26,7 +26,7 @@ namespace DerbyCalculators
             connection.Open();
             SqlTransaction transaction = connection.BeginTransaction();
             var players = new PlayerGateway(connection, transaction).GetPlayersForTeam(teamID).ToDictionary(p => p.ID);
-            var jams = new JamGateway(connection, transaction).GetJamsForTeamAfterDate(teamID, new DateTime(2016,1,1)).OrderBy(j => j.ID);
+            var jams = new JamGateway(connection, transaction).GetJamsForTeamAfterDate(teamID, new DateTime(2017,1,1)).OrderBy(j => j.ID);
             var jamBoutMap = jams.ToDictionary(j => j.ID, j => j.BoutID);
             var jpe = new JamPlayerEffectivenessGateway(connection, transaction).GetJamPlayerEffectivenessForTeam(teamID);
             var jamData = new JamDataGateway(connection, transaction).GetJamDataForTeam(teamID).ToDictionary(jd => jd.JamID);

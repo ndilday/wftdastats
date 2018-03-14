@@ -13,6 +13,9 @@ namespace StatbookReader
 {
     public class RinxterDataImporter
     {
+        //string url = "http://stats-repo.wftda.com/rx/ds";
+        const string Rinxter_Url = "http://rinxter-test.cloudapp.net/rx/ds";
+
         //private string _statbookDownloadDirectory;
         public void Import(string connectionString, bool assumeATeams)
         {
@@ -77,53 +80,57 @@ namespace StatbookReader
 
         private List<int> GetRinxterBoutList()
         {
-            string url = "http://stats-repo.wftda.com/rx/ds";
+            
             string parameters = "?type=boutList&tournamentId={0}&output=tab";
-            // 25, 26, 27
-            int[] tournamentList = { 25, 26, 27 };
+            int[] tournamentList = { 46, 47, 48, 49 };
             List<int> boutIdList = new List<int>(102);
             List<int> teamIdList = new List<int>(16);
             List<int> boutIgnoreList = new List<int>();
+            teamIdList.Add(44); //Angel
+            teamIdList.Add(64); //Arch
+            teamIdList.Add(92); //Boston
+            teamIdList.Add(94); //Crime
+            teamIdList.Add(34); //Denver
+            teamIdList.Add(33); //Gotham
+            //teamIdList.Add(97); //Helsinki
+            teamIdList.Add(40); //London
+            //teamIdList.Add(61); //Mad
+            teamIdList.Add(67); //Minnesota
+            teamIdList.Add(106);    //Montreal
+            //teamIdList.Add(37); //Philly
+            teamIdList.Add(42); //Rat
+            teamIdList.Add(157);    //Rose
+            //teamIdList.Add(38); //Rocky
+            //teamIdList.Add(105);    //Terminal
+            teamIdList.Add(35); //Texas
+            //teamIdList.Add(211);    //Tri-City
+            teamIdList.Add(108);    //Victorian
+            //teamIdList.Add(62); //Windy
+            //teamIdList.Add(235);    //Calgary
+            //teamIdList.Add(93); //Charlottesville
+            //teamIdList.Add(188);    //Houston
+            //teamIdList.Add(284);    //2x4
 
-            boutIgnoreList.Add(785);
-            boutIgnoreList.Add(777);
-            boutIgnoreList.Add(786);
-            boutIgnoreList.Add(783);
-            boutIgnoreList.Add(782);
-            boutIgnoreList.Add(775);
-            boutIgnoreList.Add(773);
-            boutIgnoreList.Add(768);
-            boutIgnoreList.Add(758);
-            boutIgnoreList.Add(761);
-            boutIgnoreList.Add(772);
-            boutIgnoreList.Add(745);
-            boutIgnoreList.Add(751);
-            boutIgnoreList.Add(789);
-            boutIgnoreList.Add(760);
-            boutIgnoreList.Add(766);
-            boutIgnoreList.Add(762);
-            boutIgnoreList.Add(752);
-            boutIgnoreList.Add(748);
-            boutIgnoreList.Add(820);
-            boutIgnoreList.Add(815);
-            boutIgnoreList.Add(816);
-            boutIgnoreList.Add(813);
-            boutIgnoreList.Add(822);
-            boutIgnoreList.Add(817);
-            boutIgnoreList.Add(804);
-            boutIgnoreList.Add(801);
-            boutIgnoreList.Add(796);
-            boutIgnoreList.Add(805);
-            boutIgnoreList.Add(810);
-            boutIgnoreList.Add(790);
+
+            /*boutIgnoreList.Add(1235);
+            boutIgnoreList.Add(1226);
+            boutIgnoreList.Add(1231);
+            boutIgnoreList.Add(1228);
+            boutIgnoreList.Add(1225);
+            boutIgnoreList.Add(1218);
+            boutIgnoreList.Add(1214);
+            boutIgnoreList.Add(1219);
+            boutIgnoreList.Add(1221);
+            boutIgnoreList.Add(1217);
+            boutIgnoreList.Add(1209);
+            boutIgnoreList.Add(1211);*/
 
             // TEMPORARY REMOVALS
-            boutIgnoreList.Add(807);
 
             foreach (int tournamentId in tournamentList)
             {
                 HttpClient client = new HttpClient();
-                client.BaseAddress = new Uri(url);
+                client.BaseAddress = new Uri(Rinxter_Url);
 
                 // Add an Accept header for JSON format.
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -142,11 +149,11 @@ namespace StatbookReader
                         if (response.IsSuccessStatusCode)
                         {
                             var boutData = response.Content.ReadAsAsync<RinxterBoutData[]>().Result;
-                            boutIdList.Add(model.id);
-                            /*if (teamIdList.Contains(boutData[0].team1Id) || teamIdList.Contains(boutData[0].team2Id))
+                            //boutIdList.Add(model.id);
+                            if (teamIdList.Contains(boutData[0].team1Id) || teamIdList.Contains(boutData[0].team2Id))
                             {
                                 boutIdList.Add(model.id);
-                            }*/
+                            }
                         }
                     }
                 }
@@ -232,8 +239,8 @@ namespace StatbookReader
 
         private string DownloadRinxterStatbook(int boutId)
         {
-            string url = "http://stats-repo.wftda.com/rx/xl?command=exportBoutXLStatsBook&boutId=" + boutId.ToString();
-            string path = "C:\\temp\\statbooks\\rinxter\\" + boutId.ToString() + ".xlsx";
+            string url = "http://rinxter-test.cloudapp.net/rx/xl?command=exportBoutXLStatsBook&boutId=" + boutId.ToString();
+            string path = "C:\\derby\\statbooks\\rinxter\\" + boutId.ToString() + ".xlsx";
             if (!File.Exists(path))
             {
                 new WebClient().DownloadFile(url, path);
@@ -243,10 +250,9 @@ namespace StatbookReader
 
         public RinxterScoresModel GetRinxterScoringData(int rinxterBoutId)
         {
-            const string url = "http://stats-repo.wftda.com/rx/ds";
             const string parameters = "?type=boutScores&boutId={0}&output=tab";
             HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(url);
+            client.BaseAddress = new Uri(Rinxter_Url);
 
             // Add an Accept header for JSON format.
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));

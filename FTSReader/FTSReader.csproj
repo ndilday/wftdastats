@@ -1,19 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D0D8852B-D9FA-437B-B400-966CBE141256}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{31A95B5B-4E85-46AD-A932-B779EAAE6736}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QuickTester</RootNamespace>
-    <AssemblyName>QuickTester</AssemblyName>
+    <RootNamespace>FTSReader</RootNamespace>
+    <AssemblyName>FTSReader</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,46 +31,34 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="HtmlAgilityPack, Version=1.7.1.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlAgilityPack.1.7.1\lib\Net45\HtmlAgilityPack.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="FTSScraper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\DerbyDataAccessLayer\DerbyDataAccessLayer.csproj">
+      <Project>{9c376769-6101-47a3-8014-70ce05799d71}</Project>
+      <Name>DerbyDataAccessLayer</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DerbyDataModels\DerbyDataModels.csproj">
       <Project>{96017ab1-d4c0-4c46-b038-d6f8ac677fe9}</Project>
       <Name>DerbyDataModels</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DerbyCalculators\DerbyCalculators.csproj">
-      <Project>{ee333bca-a455-4530-bf93-73a4eb478c6f}</Project>
-      <Name>DerbyCalculators</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\FTSReader\FTSReader.csproj">
-      <Project>{31a95b5b-4e85-46ad-a932-b779eaae6736}</Project>
-      <Name>FTSReader</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\StatbookReader\StatbookReader.csproj">
-      <Project>{8f1a2a52-856f-48a2-8cd9-9d3027a6ed96}</Project>
-      <Name>StatbookReader</Name>
-    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

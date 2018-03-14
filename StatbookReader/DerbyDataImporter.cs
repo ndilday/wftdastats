@@ -123,18 +123,23 @@ namespace StatbookReader
         {
             Dictionary<int, List<JamPlayer>> map = new Dictionary<int, List<JamPlayer>>();
             JamPlayerGateway jamPlayerGateway = new JamPlayerGateway(_connection, _transaction);
+            bool dupes = false;
 
             foreach(JamLineupModel jamLineup in lineups)
             {
                 Jam jam = jamList.First(j => j.IsFirstHalf == jamLineup.IsFirstHalf && j.JamNumber == jamLineup.JamNumber);
-                List<JamPlayer> list = AddJamPlayers(homePlayerMap, jam, jamLineup.HomeLineup, jamPlayerGateway);
-                list.AddRange(AddJamPlayers(awayPlayerMap, jam, jamLineup.AwayLineup, jamPlayerGateway));
+                List<JamPlayer> list = AddJamPlayers(homePlayerMap, jam, jamLineup.HomeLineup, jamPlayerGateway, ref dupes);
+                list.AddRange(AddJamPlayers(awayPlayerMap, jam, jamLineup.AwayLineup, jamPlayerGateway, ref dupes));
                 map[jam.ID] = list;
+            }
+            if (dupes)
+            {
+                throw new InvalidOperationException("Lineup dupes");
             }
             return map;
         }
 
-        private List<JamPlayer> AddJamPlayers(Dictionary<string, Player> playerMap, Jam jam, IList<PlayerLineupModel> lineups, JamPlayerGateway gateway)
+        private List<JamPlayer> AddJamPlayers(Dictionary<string, Player> playerMap, Jam jam, IList<PlayerLineupModel> lineups, JamPlayerGateway gateway, ref bool areDupes)
         {
             List<JamPlayer> list = new List<JamPlayer>();
             List<string> duplicateCheckList = new List<string>();
@@ -145,13 +150,17 @@ namespace StatbookReader
                     Console.WriteLine(jam.ToString() + ": empty player spot");
                     continue;
                 }
-                if(duplicateCheckList.Contains(lineup.PlayerNumber))
+                if (duplicateCheckList.Contains(lineup.PlayerNumber))
                 {
-                    throw new InvalidOperationException(string.Format("{0}: #{1} in lineup multiple times.", jam, lineup.PlayerNumber));
+                    Console.WriteLine(string.Format("{0}: #{1} in lineup multiple times.", jam, lineup.PlayerNumber));
+                    areDupes = true;
                 }
-                duplicateCheckList.Add(lineup.PlayerNumber);
-                Player player = playerMap[lineup.PlayerNumber];
-                list.Add(gateway.AddJamPlayer(jam.ID, player.ID, player.TeamID, lineup.IsJammer, lineup.IsPivot));
+                else
+                {
+                    duplicateCheckList.Add(lineup.PlayerNumber);
+                    Player player = playerMap[lineup.PlayerNumber];
+                    list.Add(gateway.AddJamPlayer(jam.ID, player.ID, player.TeamID, lineup.IsJammer, lineup.IsPivot));
+                }
             }
             return list;
         }
@@ -240,11 +249,11 @@ namespace StatbookReader
                         continue;
                     }
                     int playerID = awayPlayerMap[playerLineup.PlayerNumber].ID;
-                    if (playerLineup.IsJammer && jsm.HomeStarPass == null)
+                    if (playerLineup.IsJammer && jsm.AwayStarPass == null)
                     {
                         awayEndJammerMap[jam.ID] = playerID;
                     }
-                    else if (playerLineup.IsPivot && jsm.HomeStarPass != null)
+                    else if (playerLineup.IsPivot && jsm.AwayStarPass != null)
                     {
                         awayEndJammerMap[jam.ID] = playerID;
                     }

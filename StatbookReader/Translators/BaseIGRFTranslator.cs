@@ -310,12 +310,12 @@ namespace StatbookReader.Translators
                     continue;
                 }
                 PlayerPenaltiesModel model = new PlayerPenaltiesModel();
-                model.PlayerNumber = playerObj.ToString();
+                model.PlayerNumber = playerObj.ToString().Trim();
                 List<PenaltyModel> list = new List<PenaltyModel>();
 
                 list.AddRange(ProcessPenaltySheetPlayer(firstHalfFouls, rowOffset, true));
                 object playerObj2 = secondHalfFouls.SubRange(rowOffset, 1).Value;
-                if (!playerObj2.ToString().Equals(model.PlayerNumber, StringComparison.InvariantCultureIgnoreCase))
+                if (!playerObj2.ToString().Trim().Equals(model.PlayerNumber, StringComparison.InvariantCultureIgnoreCase))
                 {
                     throw new InvalidOperationException("Huh?");
                 }

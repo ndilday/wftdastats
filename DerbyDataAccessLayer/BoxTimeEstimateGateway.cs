@@ -15,10 +15,10 @@ namespace DerbyDataAccessLayer
 
         public BoxTimeEstimateGateway(SqlConnection connection, SqlTransaction transaction) : base(connection, transaction) { }
 
-        public void InsertBoxTimeEstimates(Dictionary<int, int> boxTimeEstimates)
+        public void InsertBoxTimeEstimates(Dictionary<int, int> boxTimeEstimates, bool deleteExistingRows)
         {
             int counter = 0;
-            string query = s_DeleteBoxTimeEstimate + s_InsertBoxTimeEstimateQueryBase;
+            string query = deleteExistingRows ? s_DeleteBoxTimeEstimate + s_InsertBoxTimeEstimateQueryBase : s_InsertBoxTimeEstimateQueryBase;
             foreach (KeyValuePair<int, int> kvp in boxTimeEstimates)
             {
                 query += String.Format(s_InsertBoxTimeEstimateParameter,

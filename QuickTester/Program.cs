@@ -4,9 +4,11 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 using DerbyCalculators;
 using DerbyDataModels;
+using FTSReader;
 using StatbookReader;
 using StatbookReader.Models;
 
@@ -16,34 +18,19 @@ namespace QuickTester
     {
         static void Main(string[] args)
         {
+            FTSScraper scraper = new FTSScraper();
+            scraper.PopulateMap();
+
+            /*
             string connString = ConfigurationManager.ConnectionStrings["derby"].ConnectionString;
-            //RinxterDataImporter importer = new RinxterDataImporter();
-            //importer.Import(connString, false);
+            RinxterDataImporter importer = new RinxterDataImporter();
+            importer.Import(connString, true);
             
             //string basicConnString = ConfigurationManager.ConnectionStrings["basicderby"].ConnectionString;
             //BasicProcessStatsheetDirectory(basicConnString, args[0]);
             ProcessStatsheetDirectory(connString, args[0], true);
             SetUpCalculatedTables(connString);
-            CreatePlayerPerformanceCsv(connString);
-            /*int iterations = 10;
-            var foo = new PlayerPerformanceCalculator(connString).GetAllPlayerPointPerformances(iterations);
-            var sorted = foo[0].Keys.OrderBy(k => k);
-            StreamWriter output = new StreamWriter("e:\\projects\\apvm-blocker.csv");
-            foreach(int playerID in sorted)
-            {
-                if(foo[0][playerID].BlockerPerformance == null || foo[0][playerID].BlockerPerformance.TotalJamPortions == 0) continue;
-
-                string line = playerID.ToString();
-                
-                for(int i = 0; i < iterations; i++)
-                {
-                    var pp = foo[i][playerID];
-                    double apvm = pp.BlockerPerformance.TotalPointsVersusMedian / pp.BlockerPerformance.TotalJamPortions;
-                    line += "," + apvm;
-                }
-                output.WriteLine(line);
-            }
-            output.Close();*/
+            */
         }
 
         static void ProcessStatsheetDirectory(string connString, string directoryPath, bool assumeATeams)
@@ -58,6 +45,10 @@ namespace QuickTester
                 DerbyDataImporter importer = new DerbyDataImporter();
                 foreach (string path in Directory.GetFiles(directoryPath, "*.xlsx"))
                 {
+                    if(path.Contains('~'))
+                    {
+                        continue;
+                    }
                     Console.WriteLine("--------------------");
                     Console.WriteLine("Processing " + path);
                     timer.Restart();
@@ -126,8 +117,7 @@ namespace QuickTester
             
             Console.WriteLine("Calculating Situational Scores");
             timer.Restart();
-            IList<JamTeamData> jamData;
-            var sss = new SituationalScoreCalculator(connString).CalculateSituationalScores(out jamData);
+            var sss = new SituationalScoreCalculator(connString).CalculateSituationalScores(out IList<JamTeamData> jamData);
             timer.Stop();
             Console.WriteLine("Finished Calculating SituationalScores: " + timer.Elapsed.TotalSeconds);
             

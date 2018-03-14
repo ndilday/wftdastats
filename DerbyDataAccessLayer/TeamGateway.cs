@@ -17,20 +17,22 @@ Join TeamType tt ON tt.ID = t.TeamTypeID
 WHERE t.RinxterID = @ID";
 
         internal const string s_GetTeamQuery = @"
-SELECT t.RinxterID, t.Name, t.LeagueID, t.ID, tt.Name AS TeamType
+SELECT TOP 1 t.RinxterID, t.Name, t.LeagueID, t.ID, tt.Name AS TeamType
 FROM Team t
 Join TeamType tt ON tt.ID = t.TeamTypeID
 WHERE 
     t.Name = @Name AND
-    t.LeagueID = @LeagueID";
+    t.LeagueID = @LeagueID
+ORDER BY t.ID";
 
         internal const string s_GetATeamQuery = @"
-SELECT t.RinxterID, t.Name, t.LeagueID, t.ID, tt.Name AS TeamType
+SELECT TOP 1 t.RinxterID, t.Name, t.LeagueID, t.ID, tt.Name AS TeamType
 FROM Team t
 Join TeamType tt ON tt.ID = t.TeamTypeID
 WHERE 
     t.TeamTypeID = 1 AND
-    t.LeagueID = @LeagueID";
+    t.LeagueID = @LeagueID
+ORDER BY t.ID";
 
         internal const string s_AddTeamQuery = @"
 INSERT INTO Team 
