@@ -18,19 +18,20 @@ namespace QuickTester
     {
         static void Main(string[] args)
         {
+            /*
             FTSScraper scraper = new FTSScraper();
             scraper.PopulateMap();
-
-            /*
+            */
+            
             string connString = ConfigurationManager.ConnectionStrings["derby"].ConnectionString;
-            RinxterDataImporter importer = new RinxterDataImporter();
-            importer.Import(connString, true);
+            //RinxterDataImporter importer = new RinxterDataImporter();
+            //importer.Import(connString, true);
             
             //string basicConnString = ConfigurationManager.ConnectionStrings["basicderby"].ConnectionString;
             //BasicProcessStatsheetDirectory(basicConnString, args[0]);
-            ProcessStatsheetDirectory(connString, args[0], true);
+            ProcessStatsheetDirectory(connString, args[0], false);
             SetUpCalculatedTables(connString);
-            */
+            
         }
 
         static void ProcessStatsheetDirectory(string connString, string directoryPath, bool assumeATeams)

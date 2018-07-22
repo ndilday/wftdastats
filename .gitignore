@@ -5,3 +5,5 @@ obj
 QuickTester.csproj.user
 packages
 *.user
+/DerbyWebApp/Content/bootstrap-theme.min.css.map
+/DerbyWebApp/Content/bootstrap.min.css.map
