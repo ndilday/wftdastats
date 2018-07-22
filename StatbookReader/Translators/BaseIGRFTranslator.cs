@@ -78,7 +78,8 @@ namespace StatbookReader.Translators
             for (int i = 0; i < 20; i++)
             {
                 object numberCell = homeStart.Offset(i, 0).Value;
-                if (numberCell != null && !string.IsNullOrWhiteSpace(numberCell.ToString()))
+                // ignore numbers that have * in them; these are alts
+                if (numberCell != null && !string.IsNullOrWhiteSpace(numberCell.ToString()) && !numberCell.ToString().Contains("*"))
                 {
                     PlayerModel player = new PlayerModel();
 
@@ -304,7 +305,7 @@ namespace StatbookReader.Translators
             while (rowOffset < 40)
             {
                 object playerObj = firstHalfFouls.SubRange(rowOffset, 1).Value;
-                if (playerObj == null || string.IsNullOrWhiteSpace(playerObj.ToString()))
+                if (playerObj == null || string.IsNullOrWhiteSpace(playerObj.ToString()) || playerObj.ToString().Contains("*"))
                 {
                     rowOffset += 2;
                     continue;

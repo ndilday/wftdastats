@@ -15,7 +15,7 @@ namespace DerbyDataAccessLayer
 
         public JamDataGateway(SqlConnection connection, SqlTransaction transaction) : base(connection, transaction) { }
 
-        internal JamTeamData ReadData(SqlDataReader reader)
+        private JamTeamData ReadData(SqlDataReader reader)
         {
             JamTeamData jamFoul = new JamTeamData();
             jamFoul.JamID = reader.GetInt32(reader.GetOrdinal("JamID"));

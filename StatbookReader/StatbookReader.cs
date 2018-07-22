@@ -30,8 +30,16 @@ namespace StatbookReader
             }
             else if (irgf.Cells["A7"].Value.ToString() == "Date:")
             {
-                // April 2015 version
-                translator = new IGRFV2Translator();
+                if (irgf.Cells["G10"].Value != null && irgf.Cells["G10"].Value.ToString() == "LEAGUE")
+                {
+                    // January 2018 version
+                    translator = new IGRFV3Translator();
+                }
+                else
+                {
+                    // April 2015 version
+                    translator = new IGRFV2Translator();
+                }
             }
             else
             {
