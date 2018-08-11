@@ -22,17 +22,16 @@ namespace QuickTester
             FTSScraper scraper = new FTSScraper();
             scraper.PopulateMap();
             */
-            
-            string connString = ConfigurationManager.ConnectionStrings["derby"].ConnectionString;
-            /*
-            RinxterDataImporter importer = new RinxterDataImporter();
-            importer.Import(connString, true);
-            */
+
+            //RinxterDataImporter importer = new RinxterDataImporter();
+            //importer.Import(connString, true);
+
             //string basicConnString = ConfigurationManager.ConnectionStrings["basicderby"].ConnectionString;
             //BasicProcessStatsheetDirectory(basicConnString, args[0]);
+            string connString = ConfigurationManager.ConnectionStrings["derby"].ConnectionString;
             ProcessStatsheetDirectory(connString, args[0], true);
             SetUpCalculatedTables(connString);
-            /**/
+            
         }
 
         static void ProcessStatsheetDirectory(string connString, string directoryPath, bool assumeATeams)
