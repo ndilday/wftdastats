@@ -253,6 +253,7 @@ namespace DerbyCalculators
                 // lacking anything better, sum the distance of each factor from the percentile of the base
                 JamTeamData baseJamData = new JamTeamData
                 {
+                    Year = jamData.Year,
                     BlockerBoxTime = 0,
                     JammerBoxTime = 0,
                     OppBlockerBoxTime = 0,
@@ -338,6 +339,7 @@ namespace DerbyCalculators
                 // lacking anything better, sum the distance of each factor from the percentile of the base
                 JamTeamData baseJamData = new JamTeamData
                 {
+                    Year = jamData.Year,
                     BlockerBoxTime = 0,
                     JammerBoxTime = 0,
                     OppBlockerBoxTime = 0,

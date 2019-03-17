@@ -5,4 +5,4 @@ JOIN Team ht ON ht.ID = b.HomeTeamID
 JOIN League hl ON hl.ID = ht.LeagueID
 JOIN Team t2 ON t2.ID = b.AwayTeamID
 JOIN League al ON al.ID = t2.LeagueID
-WHERE j.ID IN (55190, 61262, 61673)
+WHERE j.ID IN (68107, 68122, 68178)

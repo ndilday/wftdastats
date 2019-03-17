@@ -297,7 +297,7 @@ namespace DerbyCalculators
             var jams = new JamGateway(connection, transaction).GetAllJams().OrderBy(j => j.ID);
             var jamBoutMap = jams.ToDictionary(j => j.ID, j => j.BoutID);
             var jpe = new JamPlayerEffectivenessGateway(connection, transaction).GetAllJamPlayerEffectiveness();
-            var jamData = new JamDataGateway(connection, transaction).GetAllJamData()
+            var jamData = new JamDataGateway(connection, transaction).GetAllJamTeamData()
                 .GroupBy(jd => jd.JamID)
                 .ToDictionary(g => g.Key, g => g.ToDictionary(g2 => g2.TeamID));
             var teams = new TeamGateway(connection, transaction).GetAllTeams().ToDictionary(t => t.ID);

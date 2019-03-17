@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 
 using DerbyDataAccessLayer;
@@ -12,7 +12,7 @@ namespace DerbyCalculators
     public class BoutDataCalculator
     {
         private string _connectionString;
-        private IList<JamTeamData> _jamData = null;
+        private IList<JamTeamData> _jamTeamData = null;
         private Dictionary<FoulComparison, Dictionary<int, float>> _sss = null;
         private IList<JamTeamEffectiveness> _jamTeamEffectiveness = null;
         private IList<JamPlayer> _jamPlayers = null;
@@ -21,20 +21,34 @@ namespace DerbyCalculators
 
         public BoutDataCalculator(string connectionString,
                                   Dictionary<FoulComparison, Dictionary<int, float>> sss,
-                                  IList<JamTeamData> jamData)
+                                  IList<JamTeamData> jamTeamData)
         {
             _connectionString = connectionString;
             _sss = sss;
-            _jamData = jamData;
+            _jamTeamData = jamTeamData;
         }
 
         public void CalculateSecondaryTables()
         {
+            Stopwatch timer = new Stopwatch();
+            //new PlayerTrueSkillCalculator(connString).CalculateTrueSkills();
+            Console.WriteLine("Calculating Jam Player Effectiveness");
+            timer.Restart();
             CalculateJamTeamEffectiveness();
+            timer.Stop();
+            Console.WriteLine("Finished Calculating Jam Player Effectiveness: " + timer.Elapsed.TotalSeconds);
 
+            Console.WriteLine("Calculating Player Effectiveness");
+            timer.Restart();
             CalculatePlayerEffectiveness();
+            timer.Stop();
+            Console.WriteLine("Finished Calculating Player Effectiveness: " + timer.Elapsed.TotalSeconds);
 
+            Console.WriteLine("Calculating Average Penalty Cost");
+            timer.Restart();
             CalculateAveragePenaltyCosts();
+            timer.Stop();
+            Console.WriteLine("Finished Calculating Average Penalty Cost: " + timer.Elapsed.TotalSeconds);
         }
 
         private void CalculateJamTeamEffectiveness()
@@ -44,7 +58,7 @@ namespace DerbyCalculators
             SqlTransaction transaction = connection.BeginTransaction();
 
             _jamTeamEffectiveness = new List<JamTeamEffectiveness>();
-            foreach (JamTeamData jamData in _jamData)
+            foreach (JamTeamData jamData in _jamTeamData)
             {
                 _jamTeamEffectiveness.Add(new JamTeamEffectiveness
                 {
@@ -74,7 +88,7 @@ namespace DerbyCalculators
 
             // these three get mapped by jam
             var jteMap = _jamTeamEffectiveness.GroupBy(jte => jte.JamID).ToDictionary(g => g.Key);
-            var jamDataMap = _jamData.GroupBy(jf => jf.JamID).ToDictionary(g => g.Key);
+            var jamDataMap = _jamTeamData.GroupBy(jf => jf.JamID).ToDictionary(g => g.Key);
             var jpJamMap = _jamPlayers.GroupBy(jp => jp.JamID).ToDictionary(g => g.Key);
             var jamTimeMap = new JamTimeLimitGateway(connection, transaction).GetAllJamTimeEstimates().ToDictionary(jte => jte.JamID);
             //var jpPlayerMap = players.GroupBy(jp => jp.PlayerID).ToDictionary(g => g.Key);
@@ -155,7 +169,7 @@ namespace DerbyCalculators
             SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
             SqlTransaction transaction = connection.BeginTransaction();
-            var jamData = _jamData
+            var jamData = _jamTeamData
                 .GroupBy(jd => jd.JamID)
                 .ToDictionary(
                     g => g.Key,
@@ -302,6 +316,7 @@ namespace DerbyCalculators
             double blockerBoxComp = Math.Round(blockerPenaltyDiff / 15.0, MidpointRounding.AwayFromZero) / 2.0;
             FoulComparison foul = new FoulComparison
             {
+                Year = jamData.Year,
                 JammerBoxComparison = jammerBoxComp,
                 BlockerBoxComparison = blockerBoxComp
             };
@@ -311,6 +326,7 @@ namespace DerbyCalculators
                 // lacking anything better, sum the distance of each factor from the percentile of the base
                 JamTeamData baseJamData = new JamTeamData
                 {
+                    Year = jamData.Year,
                     BlockerBoxTime = 0,
                     JammerBoxTime = 0,
                     OppBlockerBoxTime = 0,

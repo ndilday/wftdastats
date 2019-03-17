@@ -6,7 +6,7 @@ FROM Jam j
 JOIN Bout b ON b.ID = j.BoutID
 JOIN Team t1 ON b.HomeTeamID = t1.ID
 JOIN Team t2 ON b.AwayTeamID = t2.ID
-WHERE b.PlayDate > '2018-01-01' AND t1.TeamTypeID = 1 AND t2.TeamTypeID = 1 AND b.ID != 959 AND b.ID != 1099 AND b.ID != 1223
+WHERE b.PlayDate >= '2018-01-01' AND t1.TeamTypeID = 1 AND t2.TeamTypeID = 1
 ),
 TPBlockerPenalties(TeamPlayerID, Penalties) AS
 (
@@ -68,10 +68,11 @@ SELECT
 	p.Number, 
 	p.Name, 
 	tps.Bouts AS Games, 
-	tps.Jams AS Jams, 
+	tps.Jams AS Jams,
 	ISNULL(tpbp.Penalties, 0) AS Penalties, 
 	ISNULL(tpps.Jams, 0) AS JamsAsPivot,
 	ISNULL(tprs.StarPasses, 0) AS StarPasses
+	
 FROM Team_Player tp
 JOIN Team t ON t.ID = tp.TeamID
 JOIN League l ON l.ID = t.LeagueID
