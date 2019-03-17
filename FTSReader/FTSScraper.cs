@@ -2,12 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
-
-using DerbyDataModels;
 using HtmlAgilityPack;
 
 namespace FTSReader
@@ -30,12 +26,22 @@ namespace FTSReader
         public double rankingScore;
     }
 
+    public class TeamGameRatingData
+    {
+        public int oppTeamId;
+        public string oppTeamName;
+        public DateTime gameDate;
+        public double ratingChange;
+        public double newRating;
+    }
+
     public class FTSScraper
     {
         private const string FTS_WFTDA_TEAM_LIST = "http://flattrackstats.com/teams/results/wftda?page={0}";
+        private const string FTS_WFTDA_TEAM_RATING_CHANGES = "http://flattrackstats.com/teams/{0}/rankings/wftda";
         private const string FTS_B_TEAM_LIST = "http://flattrackstats.com/teams/results/b-team?page={0}";
         private const string FTS_WFTDA_RANKING = "http://flattrackstats.com/rankings";
-        private const string FTS_NA_RANKING = "http://flattrackstats.com/rankings/northamerica";
+        private const string FTS_NA_RANKING = "http://flattrackstats.com/rankings/women_northamerica";
         private static HttpClient _httpClient = new HttpClient();
         private ConcurrentDictionary<int, TeamData> teamDataMap = new ConcurrentDictionary<int, TeamData>();
 
@@ -49,7 +55,82 @@ namespace FTSReader
             // get ranking data
             task = ReadNorthAmericanRankings();
             task.Wait();
-            GenerateCsvFromMap("C:\\Derby\\DB\\fts.csv");
+            GenerateCsvFromMap("E:\\Projects\\fts.csv");
+        }
+
+        public List<TeamGameRatingData> GetTeamRatingHistory(int teamId)
+        {
+            List<TeamGameRatingData> result = new List<TeamGameRatingData>();
+            Task task = ReadTeamRatingHistory(teamId, result);
+            task.Wait();
+            return result;
+        }
+
+        private async Task ReadTeamRatingHistory(int teamId, List<TeamGameRatingData> output)
+        {
+            string url = string.Format(FTS_WFTDA_TEAM_RATING_CHANGES, teamId);
+            using (var response = await _httpClient.GetAsync(url))
+            {
+                using (var content = response.Content)
+                {
+                    // read answer in non-blocking way
+                    string result = await content.ReadAsStringAsync();
+                    var document = new HtmlDocument();
+                    document.LoadHtml(result);
+                    output = ProcessTeamRatingHistoryHtml(document);
+                }
+            }
+        }
+
+        private List<TeamGameRatingData> ProcessTeamRatingHistoryHtml(HtmlDocument document)
+        {
+            try
+            {
+                List<TeamGameRatingData> gameRatingDataList = new List<TeamGameRatingData>();
+                var body = document.DocumentNode
+                    .SelectSingleNode("//div[@id='quicktabs_tabpage_teams-rankings-drilldown_simple']/table/tbody");
+                var rows = body.SelectNodes("tr");
+                Console.WriteLine(rows.Count);
+                foreach (var row in rows)
+                {
+                    /* format is 
+                     * Date
+                     * This Team
+                     * Opposing Team
+                     * Graph
+                     * Rating Change
+                     * New Rating
+                     * Stats
+                    */
+                    // second td is league name
+                    var date = row.SelectSingleNode("td[1]");
+                    DateTime dateVal = Convert.ToDateTime(date.InnerHtml.Trim());
+                    var oppTeam = row.SelectSingleNode("td[3]/a");
+                    string oppTeamName = oppTeam.InnerHtml.Trim();
+                    int oppTeamFtsId = Convert.ToInt32(oppTeam.Attributes["href"].Value.Split('/')[2]);
+                    var change = row.SelectSingleNode("td[5]/span");
+                    string changeString = change.InnerHtml.TrimStart('+');
+                    if (changeString == "&nbsp;") changeString = "0";
+                    double changeVal = Convert.ToDouble(changeString);
+                    var newRating = row.SelectSingleNode("td[6]");
+                    double newRatingValue = Convert.ToDouble(newRating.InnerHtml);
+                    gameRatingDataList.Add(new TeamGameRatingData
+                    {
+                        gameDate = dateVal,
+                        oppTeamId = oppTeamFtsId,
+                        oppTeamName = oppTeamName,
+                        newRating = newRatingValue,
+                        ratingChange = changeVal
+                    });
+                }
+                return gameRatingDataList;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine(e.StackTrace);
+            }
+            return null;
         }
 
         private void GenerateCsvFromMap(string filePath)

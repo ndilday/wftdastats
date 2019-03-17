@@ -47,6 +47,7 @@
     <Compile Include="Models\TeamData.cs" />
     <Compile Include="PenaltyCostCalculator.cs" />
     <Compile Include="PlayerCalculator.cs" />
+    <Compile Include="PlayerFtsRatingCalculator.cs" />
     <Compile Include="PlayerPerformanceCalculator.cs" />
     <Compile Include="SituationalScoreCalculator.cs" />
     <Compile Include="SkillGaussian.cs" />
@@ -67,6 +68,10 @@
     <ProjectReference Include="..\DerbyDataModels\DerbyDataModels.csproj">
       <Project>{96017ab1-d4c0-4c46-b038-d6f8ac677fe9}</Project>
       <Name>DerbyDataModels</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FTSReader\FTSReader.csproj">
+      <Project>{31a95b5b-4e85-46ad-a932-b779eaae6736}</Project>
+      <Name>FTSReader</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
