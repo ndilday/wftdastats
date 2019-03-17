@@ -134,7 +134,8 @@ namespace StatbookReader.Translators
                     nextJamNumber = homeLineupStart.SubRange(currentRow + 1, 1).Value == null ? null : homeLineupStart.SubRange(currentRow + 1, 1).Value.ToString();
                     bool isSP = nextJamNumber == null ? false : nextJamNumber.Trim().ToLowerInvariant() == "sp";
                     jamLineup.HomeLineup = new List<PlayerLineupModel>();
-                    bool hasPivot = homeLineupStart.SubRange(currentRow, 2).Value == null;
+                    object hasPivotCell = homeLineupStart.SubRange(currentRow, 2).Value;
+                    bool hasPivot = hasPivotCell == null || hasPivotCell.ToString() == "";
                     _dupePlayerCheck = new HashSet<string>();
                     // TODO: do error checking here
                     jamLineup.HomeLineup.Add(CreateJamPlayer(homeLineupStart.SubRange(currentRow, 3), true, false, isSP));
@@ -146,7 +147,8 @@ namespace StatbookReader.Translators
                     nextJamNumber = awayLineupStart.SubRange(currentRow + 1, 1).Value == null ? null : awayLineupStart.SubRange(currentRow + 1, 1).Value.ToString();
                     isSP = nextJamNumber == null ? false : nextJamNumber.Trim().ToLowerInvariant() == "sp";
                     jamLineup.AwayLineup = new List<PlayerLineupModel>();
-                    hasPivot = awayLineupStart.SubRange(currentRow, 2).Value == null;
+                    hasPivotCell = awayLineupStart.SubRange(currentRow, 2).Value;
+                    hasPivot = hasPivotCell == null || hasPivotCell.ToString() == "";
                     _dupePlayerCheck = new HashSet<string>();
                     // TODO: do error checking here
                     jamLineup.AwayLineup.Add(CreateJamPlayer(awayLineupStart.SubRange(currentRow, 3), true, false, isSP));
@@ -274,7 +276,7 @@ namespace StatbookReader.Translators
             }
 
             ScoreModel model = new ScoreModel();
-            model.PlayerNumber = scorer.ToString();
+            model.PlayerNumber = scorer.ToString().Trim();
             model.JamTotal = Convert.ToInt32(scores.SubRange(currentRow, 17).Value);
             model.Lost = !string.IsNullOrWhiteSpace((string)scores.SubRange(currentRow, 3).Value);
             model.Lead = !string.IsNullOrWhiteSpace((string)scores.SubRange(currentRow, 4).Value);

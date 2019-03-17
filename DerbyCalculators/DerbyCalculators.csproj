@@ -42,8 +42,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DurationEstimatesCalculator.cs" />
     <Compile Include="BoutDataCalculator.cs" />
+    <Compile Include="DurationEstimatesCalculator.cs" />
     <Compile Include="Models\TeamData.cs" />
     <Compile Include="PenaltyCostCalculator.cs" />
     <Compile Include="PlayerCalculator.cs" />

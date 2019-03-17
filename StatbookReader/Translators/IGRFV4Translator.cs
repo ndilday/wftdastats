@@ -6,10 +6,10 @@ using StatbookReader.Models;
 
 namespace StatbookReader.Translators
 {
-    // corresponds to the January 2018 release
-    class IGRFV3Translator : BaseIGRFTranslator, ITranslator
+    // corresponds to the January 2019 release
+    class IGRFV4Translator : BaseIGRFTranslator, ITranslator
     {
-        public IGRFV3Translator()
+        public IGRFV4Translator()
         {
             /*
              * "B10", "B11", "H10", "H11", "B14", "H14", "B7",
@@ -57,6 +57,8 @@ namespace StatbookReader.Translators
                 {
                     break;
                 }
+                BoxTimeModel boxTime;
+                bool isJammer = player.IsJammer;
                 string foulMark = foulMarkObj.ToString().Trim();
                 char? specialKey = null;
                 if (foulMark.Length > 1)
@@ -64,24 +66,21 @@ namespace StatbookReader.Translators
                     specialKey = foulMark[1];
                     foulMark = foulMark.Substring(0, 1);
                 }
-                BoxTimeModel boxTime;
                 switch (foulMark.ToString().Trim())
                 {
-                    case "x":
-                    case "X":
+                    case "+":
                         boxTime = new BoxTimeModel
                         {
-                            Started = foulCol == 2 ? (bool?) null : false,
+                            Started = false,
                             Exited = true,
                             IsJammer = player.IsJammer,
                             IsPivot = player.IsPivot,
-                            IsFullService = foulCol == 2 ? (bool?)null : true,
+                            IsFullService = true,
                             SpecialKey = specialKey
                         };
                         player.BoxTimes.Add(boxTime);
                         break;
-                    case "/":
-                    case "\\":
+                    case "-":
                         boxTime = new BoxTimeModel
                         {
                             Started = false,
@@ -95,10 +94,6 @@ namespace StatbookReader.Translators
                         break;
                     case "s":
                     case "S":
-                    case "i":
-                    case "I":
-                    case "|":
-                    case "l":
                         boxTime = new BoxTimeModel
                         {
                             Started = true,
@@ -117,7 +112,6 @@ namespace StatbookReader.Translators
                             Exited = true,
                             IsJammer = player.IsJammer,
                             IsPivot = player.IsPivot,
-                            IsFullService = true,
                             SpecialKey = specialKey
                         };
                         player.BoxTimes.Add(boxTime);
@@ -128,7 +122,7 @@ namespace StatbookReader.Translators
                 }
                 foulCol++;
             }
-            if(isSP)
+            if (isSP)
             {
                 foulCol = 2;
                 if (player.IsJammer)
@@ -141,7 +135,7 @@ namespace StatbookReader.Translators
                 }
                 int initialFoulCol = foulCol;
                 int stop = foulCol + 3;
-                BoxTimeModel lastBox = (player.BoxTimes.Count > 0) ? player.BoxTimes[player.BoxTimes.Count - 1] : null; 
+                BoxTimeModel lastBox = (player.BoxTimes.Count > 0) ? player.BoxTimes[player.BoxTimes.Count - 1] : null;
                 // check each foul box for this player in this jam
                 while (foulCol < stop)
                 {
@@ -160,15 +154,10 @@ namespace StatbookReader.Translators
                     }
                     switch (foulMark.ToString().Trim())
                     {
-                        case "x":
-                        case "X":
+                        case "+":
                             if (foulCol == initialFoulCol && lastBox != null && !lastBox.Exited)
                             {
                                 lastBox.Exited = true;
-                                if(lastBox.Started == false)
-                                {
-                                    lastBox.IsFullService = true;
-                                }
                             }
                             else
                             {
@@ -184,8 +173,7 @@ namespace StatbookReader.Translators
                                 player.BoxTimes.Add(boxTime);
                             }
                             break;
-                        case "/":
-                        case "\\":
+                        case "-":
                             boxTime = new BoxTimeModel
                             {
                                 Started = false,
@@ -199,13 +187,16 @@ namespace StatbookReader.Translators
                             break;
                         case "s":
                         case "S":
-                            Console.WriteLine("s in SP box time");
+                            if (lastBox == null)
+                            {
+                                throw new InvalidOperationException("started in box during star pass?");
+                            }
                             break;
                         case "$":
-                            if(lastBox != null)
+                            if (lastBox != null)
                             {
                                 lastBox.Exited = true;
-                                if(lastBox.Started == false)
+                                if (lastBox.Started == false)
                                 {
                                     lastBox.IsFullService = true;
                                 }
@@ -218,6 +209,8 @@ namespace StatbookReader.Translators
                         case "3":
                             player.WasInjured = true;
                             break;
+                        default:
+                            throw new InvalidOperationException("Unexpected penalty character " + foulMark.ToString().Trim() + " for #" + player.PlayerNumber);
                     }
                     foulCol++;
                 }

@@ -6,7 +6,7 @@ FROM Jam j
 JOIN Bout b ON b.ID = j.BoutID
 JOIN Team t1 ON b.HomeTeamID = t1.ID
 JOIN Team t2 ON b.AwayTeamID = t2.ID
-WHERE b.PlayDate > '2018-01-01' AND t1.TeamTypeID = 1 AND t2.TeamTypeID = 1 AND b.ID != 959 AND b.ID != 1099 AND b.ID != 1223
+WHERE b.PlayDate >= '2018-01-01' AND t1.TeamTypeID = 1 AND t2.TeamTypeID = 1
 ),
 TPJammerPenalties(TeamPlayerID, Penalties) AS
 (

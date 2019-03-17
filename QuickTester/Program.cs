@@ -118,13 +118,13 @@ namespace QuickTester
             
             Console.WriteLine("Calculating Situational Scores");
             timer.Restart();
-            var sss = new SituationalScoreCalculator(connString).CalculateSituationalScores(out IList<JamTeamData> jamData);
+            var sss = new SituationalScoreCalculator(connString).CalculateSituationalScores(out IList<JamTeamData> jamTeamData, out Dictionary<int, JamData> jamDataMap);
             timer.Stop();
             Console.WriteLine("Finished Calculating SituationalScores: " + timer.Elapsed.TotalSeconds);
             
             Console.WriteLine("Calculating Secondary Tables");
             timer.Restart();
-            new BoutDataCalculator(connString, sss, jamData).CalculateSecondaryTables();
+            new BoutDataCalculator(connString, sss, jamTeamData).CalculateSecondaryTables();
             timer.Stop();
             Console.WriteLine("Finished Calculating Secondary Tables: " + timer.Elapsed.TotalSeconds);
         }

@@ -13,7 +13,7 @@ namespace DerbyCalculators
     public class SituationalScoreCalculator
     {
         private string _connectionString;
-        private IList<JamTeamData> _jamData = null;
+        private IList<JamTeamData> _jamTeamData = null;
 
         public SituationalScoreCalculator(string connectionString)
         {
@@ -22,24 +22,26 @@ namespace DerbyCalculators
 
         public SituationalScoreCalculator(string connectionString, IList<JamTeamData> jamTeamData) : this(connectionString)
         {
-            _jamData = jamTeamData;
+            _jamTeamData = jamTeamData;
         }
 
-        public Dictionary<FoulComparison, Dictionary<int, float>> CalculateSituationalScores(out IList<JamTeamData> jamData)
+        public Dictionary<FoulComparison, Dictionary<int, float>> CalculateSituationalScores(out IList<JamTeamData> jamTeamData, out Dictionary<int, JamData> jamDataMap)
         {
             SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
             SqlTransaction transaction = connection.BeginTransaction();
-            jamData = null;
+            jamTeamData = null;
 
-            if (_jamData == null)
+            JamDataGateway gateway = new JamDataGateway(connection, transaction);
+            jamDataMap = gateway.GetAllJamData().ToDictionary(m => m.JamID, m => m);
+            if (_jamTeamData == null)
             {
-                JamDataGateway gateway = new JamDataGateway(connection, transaction);
-                _jamData = gateway.GetAllJamData();
-                jamData = _jamData;
+                
+                _jamTeamData = gateway.GetAllJamTeamData();
+                jamTeamData = _jamTeamData;
             }
 
-            Dictionary<FoulComparison, SortedList<int, int>> bigMap = CreateBigMap();
+            Dictionary<FoulComparison, SortedList<int, int>> bigMap = CreateBigMap(jamDataMap);
             Dictionary<FoulComparison, Dictionary<int, float>> sss = CreateSituationalScores(bigMap);
             new SituationalScoreGateway(connection, transaction).InsertSituationalScores(sss);
             transaction.Commit();
@@ -47,21 +49,31 @@ namespace DerbyCalculators
             return sss;
         }
 
-        private Dictionary<FoulComparison, SortedList<int, int>> CreateBigMap()
+        private Dictionary<FoulComparison, SortedList<int, int>> CreateBigMap(Dictionary<int, JamData> jamDataMap)
         {
             Dictionary<FoulComparison, SortedList<int, int>> bigMap = new Dictionary<FoulComparison, SortedList<int, int>>();
-            foreach (JamTeamData jamData in _jamData)
+            foreach (JamTeamData jamTeamData in _jamTeamData)
             {
-                if (!bigMap.ContainsKey(jamData.FoulComparison))
+                jamTeamData.Year = jamDataMap[jamTeamData.JamID].PlayDate.Year;
+                /*if (jamDataMap[jamTeamData.JamID].HomeTeamType != 1 || jamDataMap[jamTeamData.JamID].AwayTeamType != 1)
                 {
-                    bigMap[jamData.FoulComparison] = new SortedList<int, int>();
-                }
-                SortedList<int, int> innerList = bigMap[jamData.FoulComparison];
-                if (!innerList.ContainsKey(jamData.PointDelta))
+                    continue;
+                }*/
+
+                if (!bigMap.ContainsKey(jamTeamData.FoulComparison))
                 {
-                    innerList[jamData.PointDelta] = 0;
+                    
+                    bigMap[jamTeamData.FoulComparison] = new SortedList<int, int>();
                 }
-                innerList[jamData.PointDelta]++;
+
+                SortedList<int, int> innerList = bigMap[jamTeamData.FoulComparison];
+
+                if (!innerList.ContainsKey(jamTeamData.PointDelta))
+                {
+                    innerList[jamTeamData.PointDelta] = 0;
+                }
+
+                innerList[jamTeamData.PointDelta]++;
             }
             return bigMap;
         }
