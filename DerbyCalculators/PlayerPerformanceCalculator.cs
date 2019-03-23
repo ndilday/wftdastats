@@ -13,7 +13,7 @@ namespace DerbyCalculators
 {
     public class PlayerPerformanceCalculator
     {
-        static DateTime STATS_START_DATE = new DateTime(2018, 1, 1);
+        static DateTime STATS_START_DATE = new DateTime(2019, 1, 1);
         string _connectionString;
         public PlayerPerformanceCalculator(string connString)
         {
@@ -30,7 +30,13 @@ namespace DerbyCalculators
             var jams = new JamGateway(connection, transaction).GetJamsForTeamAfterDate(teamID, STATS_START_DATE).OrderBy(j => j.ID);
             var jamBoutMap = jams.ToDictionary(j => j.ID, j => j.BoutID);
             var jpe = new JamPlayerEffectivenessGateway(connection, transaction).GetJamPlayerEffectivenessForTeam(teamID);
-            var jamData = new JamDataGateway(connection, transaction).GetJamDataForTeam(teamID).ToDictionary(jd => jd.JamID);
+            var jdg = new JamDataGateway(connection, transaction);
+            var jamTeamData = jdg.GetJamDataForTeam(teamID).ToDictionary(jd => jd.JamID);
+            var jamData = jdg.GetAllJamData().ToDictionary(jd => jd.JamID);
+            foreach(JamTeamData jtd in jamTeamData.Values)
+            {
+                jtd.Year = jamData[jtd.JamID].PlayDate.Year;
+            }
             var teams = new TeamGateway(connection, transaction).GetAllTeams().ToDictionary(t => t.ID);
             var bouts = new BoutGateway(connection, transaction).GetBouts().ToDictionary(t => t.ID);
             var penalties = new PenaltyGateway(connection, transaction).GetPenaltiesForTeam(teamID)
@@ -38,7 +44,7 @@ namespace DerbyCalculators
                 .ToDictionary(
                     g => g.Key,
                     g => g.GroupBy(g2 => g2.PlayerID).ToDictionary(g3 => g3.Key, g3 => g3.ToList()));
-            var pgs = new PenaltyGroupGateway(connection, transaction).GetPenaltyGroupsForTeam(teamID);
+            var pgs = new PenaltyGroupGateway(connection, transaction).GetPenaltyGroupsForTeamAfterDate(teamID, STATS_START_DATE);
             Dictionary<int, int> boxTimeEstimates = new BoxTimeEstimateGateway(connection, transaction).GetAllBoxTimeEstimates();
             Dictionary<FoulComparison, Dictionary<int, float>> sss = new SituationalScoreGateway(connection, transaction).GetAllSituationalScores();
             AveragePenaltyCostPerJam avgPenCost = new AveragePenaltyCostGateway(connection, transaction).GetAveragePenaltyCost();
@@ -47,7 +53,7 @@ namespace DerbyCalculators
 
             Dictionary<FoulComparison, float> medians = CalculateMedianScores(sss);
             PenaltyCostCalculator ppcCalc = new PenaltyCostCalculator(_connectionString);
-            Dictionary<int, double> groupPenaltyCostMap = ppcCalc.CalculatePointCostsForTeam(jamData, pgs, boxTimeEstimates, sss);
+            Dictionary<int, double> groupPenaltyCostMap = ppcCalc.CalculatePointCostsForTeam(jamTeamData, pgs, boxTimeEstimates, sss);
             Dictionary<int, PlayerPerformance> pps = new Dictionary<int, PlayerPerformance>(25);
             Dictionary<int, double> jamTotalPortionMap = new Dictionary<int, double>(300);
 
@@ -88,7 +94,7 @@ namespace DerbyCalculators
                         bp = curPP.Bouts.Last();
                     }
 
-                    JamTeamData jd = jamData[jam.ID];
+                    JamTeamData jd = jamTeamData[jam.ID];
                     int penaltyCount = penalties.ContainsKey(jam.ID) && penalties[jam.ID].ContainsKey(eff.PlayerID) ? penalties[jam.ID][eff.PlayerID].Count() : 0;
                     JamPerformance jp = new JamPerformance
                     {

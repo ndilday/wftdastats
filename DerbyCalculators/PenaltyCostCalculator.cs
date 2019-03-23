@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 
-using DerbyCalculators.Models;
 using DerbyDataAccessLayer;
 using DerbyDataModels;
 
@@ -16,37 +15,6 @@ namespace DerbyCalculators
         {
             _connectionString = connString;
         }
-
-        //public Dictionary<int, double> GetPenaltyPointCosts()
-        //{
-        //    // pull data
-        //    SqlConnection connection = new SqlConnection(_connectionString);
-        //    connection.Open();
-        //    SqlTransaction transaction = connection.BeginTransaction();
-        //    var jamData = new JamDataGateway(connection, transaction).GetAllJamData().ToDictionary(jd => jd.JamID);
-        //    var pgs = new PenaltyGroupGateway(connection, transaction).GetPenaltyGroups();
-        //    Dictionary<int, int> boxTimeEstimates = new BoxTimeEstimateGateway(connection, transaction).GetAllBoxTimeEstimates();
-        //    Dictionary<FoulComparison, Dictionary<int, float>> sss = new SituationalScoreGateway(connection, transaction).GetAllSituationalScores();
-        //    transaction.Commit();
-        //    connection.Close();
-        //    return CalculatePointCosts(jamData, pgs, boxTimeEstimates, sss);
-        //}
-
-        //public Dictionary<int, double> GetPenaltyValueCosts()
-        //{
-        //    // pull data
-        //    SqlConnection connection = new SqlConnection(_connectionString);
-        //    connection.Open();
-        //    SqlTransaction transaction = connection.BeginTransaction();
-        //    var jamData = new JamDataGateway(connection, transaction).GetAllJamData().ToDictionary(jd => jd.JamID);
-        //    var pgs = new PenaltyGroupGateway(connection, transaction).GetPenaltyGroups();
-        //    var jteMap = new JamTeamEffectivenessGateway(connection, transaction).GetAllJamTeamEffectiveness();
-        //    Dictionary<int, int> boxTimeEstimates = new BoxTimeEstimateGateway(connection, transaction).GetAllBoxTimeEstimates();
-        //    Dictionary<FoulComparison, Dictionary<int, float>> sss = new SituationalScoreGateway(connection, transaction).GetAllSituationalScores();
-        //    transaction.Commit();
-        //    connection.Close();
-        //    return CalculateValueCosts(jamData, pgs, boxTimeEstimates, sss);
-        //}
 
         public Dictionary<int, double> GetPenaltyPointCostsForTeam(int teamID)
         {
@@ -244,6 +212,7 @@ namespace DerbyCalculators
             double blockerBoxComp = Math.Round(blockerPenaltyDiff / 15.0, MidpointRounding.AwayFromZero) / 2.0;
             FoulComparison foul = new FoulComparison
             {
+                Year = jamData.Year,
                 JammerBoxComparison = jammerBoxComp,
                 BlockerBoxComparison = blockerBoxComp
             };
@@ -330,6 +299,7 @@ namespace DerbyCalculators
             double blockerBoxComp = Math.Round(blockerPenaltyDiff / 15.0, MidpointRounding.AwayFromZero) / 2.0;
             FoulComparison foul = new FoulComparison
             {
+                Year = jamData.Year,
                 JammerBoxComparison = jammerBoxComp,
                 BlockerBoxComparison = blockerBoxComp
             };
@@ -355,7 +325,27 @@ namespace DerbyCalculators
                 {
                     return 0;
                 }
-                double score1 = GetPercentileForScore(sss[baseJamData.FoulComparison], jamData.PointDelta);
+                double score1 = 0;
+                if (!sss.ContainsKey(baseJamData.FoulComparison))
+                {
+                    while(baseJamData.Year > 2013)
+                    {
+                        baseJamData.Year--;
+                        if(sss.ContainsKey(baseJamData.FoulComparison))
+                        {
+                            score1 = GetPercentileForScore(sss[baseJamData.FoulComparison], jamData.PointDelta);
+                            break;
+                        }
+                    }
+                    if(baseJamData.Year == 2013)
+                    {
+                        throw new InvalidOperationException("Bad data");
+                    }
+                }
+                else
+                {
+                    score1 = GetPercentileForScore(sss[baseJamData.FoulComparison], jamData.PointDelta);
+                }
 
                 // pull team 2 blocker
                 baseJamData.BlockerBoxTime = 0;
@@ -365,17 +355,27 @@ namespace DerbyCalculators
                 {
                     return 0;
                 }
-                // special case, for now
-                if (baseJamData.OppBlockerBoxTime > 135)
+                double score2 = 0;
+                if (!sss.ContainsKey(baseJamData.FoulComparison))
                 {
-                    // just treat it as 135 for now
-                    baseJamData.OppBlockerBoxTime = 135;
+                    while (baseJamData.Year > 2013)
+                    {
+                        baseJamData.Year--;
+                        if (sss.ContainsKey(baseJamData.FoulComparison))
+                        {
+                            score1 = GetPercentileForScore(sss[baseJamData.FoulComparison], jamData.PointDelta);
+                            break;
+                        }
+                    }
+                    if (baseJamData.Year == 2013)
+                    {
+                        throw new InvalidOperationException("Bad data");
+                    }
                 }
-                if (baseJamData.OppBlockerBoxTime < -135)
+                else
                 {
-                    baseJamData.OppBlockerBoxTime = -135;
+                    score2 = GetPercentileForScore(sss[baseJamData.FoulComparison], jamData.PointDelta);
                 }
-                double score2 = GetPercentileForScore(sss[baseJamData.FoulComparison], jamData.PointDelta);
 
                 // pull team 2 jammer
                 baseJamData.OppBlockerBoxTime = 0;
