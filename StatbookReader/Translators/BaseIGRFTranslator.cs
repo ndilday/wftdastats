@@ -83,7 +83,7 @@ namespace StatbookReader.Translators
                 {
                     PlayerModel player = new PlayerModel();
 
-                    player.Number = numberCell.ToString().Trim();
+                    player.Number = numberCell.ToString().Trim().TrimEnd('*');
                     player.Name = homeStart.Offset(i, 1).Value.ToString();
                     statbook.HomeTeam.Players.Add(player);
                 }
@@ -92,7 +92,7 @@ namespace StatbookReader.Translators
                 if (numberCell != null && !string.IsNullOrWhiteSpace(numberCell.ToString()))
                 {
                     PlayerModel player = new PlayerModel();
-                    player.Number = numberCell.ToString().Trim();
+                    player.Number = numberCell.ToString().Trim().TrimEnd('*');
                     player.Name = awayStart.Offset(i, 1).Value.ToString();
                     statbook.AwayTeam.Players.Add(player);
                 }

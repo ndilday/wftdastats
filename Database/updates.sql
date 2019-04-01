@@ -262,3 +262,40 @@ CREATE TABLE [dbo].[SituationalScore](
 ) ON [PRIMARY]
 GO
 UPDATE Player SET Number='1845' WHERE ID = 308
+-----
+
+--03-23-2019
+-----
+INSERT INTO League VALUES (275, 'Kalamazoo Derby Darlins', '2011-01-01')
+INSERT INTO MetaLeague VALUES ('Kalamazoo Derby Darlins', '2011-01-01')
+INSERT INTO MetaLeague_League VALUES(168, 275)
+GO
+INSERT INTO Team VALUES (NULL, 'All-Stars', 275, 1)
+INSERT INTO MetaTeam VALUES('All-Stars', 168, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(191, 377)
+GO
+
+INSERT INTO League VALUES (276, 'Dark River Derby Coalition', '2015-01-01')
+INSERT INTO MetaLeague VALUES ('Dark River Derby Coalition', '2015-01-01')
+INSERT INTO MetaLeague_League VALUES(169, 276)
+GO
+INSERT INTO Team VALUES (NULL, 'All-Stars', 276, 1)
+INSERT INTO MetaTeam VALUES('All-Stars', 169, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(192, 378)
+GO
+
+INSERT INTO League VALUES (277, 'Muddy River Rollers', '2011-01-01')
+INSERT INTO MetaLeague VALUES ('Muddy River Rollers', '2011-01-01')
+INSERT INTO MetaLeague_League VALUES(170, 277)
+GO
+INSERT INTO Team VALUES (NULL, 'Lumbersmacks', 277, 1)
+INSERT INTO MetaTeam VALUES('Lumbersmacks', 170, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(193, 379)
+GO
+
+UPDATE Player
+SET Number = LEFT(Number, LEN(Number) - 1)
+WHERE Number LIKE '%*'
