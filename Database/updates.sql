@@ -406,3 +406,13 @@ INSERT INTO MetaTeam VALUES('All Stars', 179, 1)
 GO
 INSERT INTO MetaTeam_Team VALUES(202, 388)
 GO
+
+INSERT INTO League VALUES (287, 'Lomme Roller Girls', '2016-04-01')
+INSERT INTO MetaLeague VALUES ('Lomme Roller Girls', '2016-04-01')
+INSERT INTO MetaLeague_League VALUES(180, 287)
+GO
+INSERT INTO Team VALUES (NULL, 'Bad Bunnies', 287, 1)
+INSERT INTO MetaTeam VALUES('Bad Bunnies', 180, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(203, 389)
+GO
