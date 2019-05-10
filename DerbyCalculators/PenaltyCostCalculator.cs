@@ -62,7 +62,10 @@ namespace DerbyCalculators
                     JamTeamData thisJamData = jamData[boxTime.JamID];
                     // determine how big the swing would be if there had been no box time served
                     double pointDiff = GetEstimatedPointsWithoutBoxTime(sss, thisJamData, boxTime.IsJammer) - thisJamData.PointDelta;
-
+                    if(pointDiff < 1)
+                    {
+                        pointDiff = 1;
+                    }
                     double totalPenaltyTime = boxTime.IsJammer ?
                         thisJamData.JammerBoxTime :
                         thisJamData.BlockerBoxTime;

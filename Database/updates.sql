@@ -37,8 +37,7 @@ INSERT INTO Team VALUES (NULL, 'A Team', 248, 1)
 INSERT INTO MetaTeam VALUES ('A Team', 141, 1)
 GO
 INSERT INTO MetaTeam_Team VALUES (162, 348)
-
-
+-----
 
 
 ----- 3-28-18 -----
@@ -299,3 +298,111 @@ GO
 UPDATE Player
 SET Number = LEFT(Number, LEN(Number) - 1)
 WHERE Number LIKE '%*'
+-----
+
+--04-01-2019
+-----
+INSERT INTO League VALUES (278, 'Humboldt Roller Derby', '2012-01-01')
+INSERT INTO MetaLeague VALUES ('Humboldt Roller Derby', '2012-01-01')
+INSERT INTO MetaLeague_League VALUES(171, 278)
+GO
+INSERT INTO Team VALUES (NULL, 'Redwood Rollers', 278, 1)
+INSERT INTO MetaTeam VALUES('Redwood Rollers', 171, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(194, 380)
+GO
+
+INSERT INTO League VALUES (279, 'Lava City Roller Dolls', '2009-08-01')
+INSERT INTO MetaLeague VALUES ('Lava City Roller Dolls', '2009-08-01')
+INSERT INTO MetaLeague_League VALUES(172, 279)
+GO
+INSERT INTO Team VALUES (NULL, 'Smokin'' Ashes', 279, 1)
+INSERT INTO MetaTeam VALUES('Smokin'' Ashes', 172, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(195, 381)
+GO
+
+INSERT INTO League VALUES (280, 'Greater Vancouver Roller Derby', '2016-01-01')
+INSERT INTO MetaLeague VALUES ('Greater Vancouver Roller Derby', '2016-01-01')
+INSERT INTO MetaLeague_League VALUES(173, 280)
+GO
+INSERT INTO Team VALUES (NULL, 'Anarchy Angels', 280, 1)
+INSERT INTO MetaTeam VALUES('Anarchy Angels', 173, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(196, 382)
+GO
+
+INSERT INTO League VALUES (281, 'Sitka Sound Slayers', '2017-01-01')
+INSERT INTO MetaLeague VALUES ('Sitka Sound Slayers', '2017-01-01')
+INSERT INTO MetaLeague_League VALUES(174, 281)
+GO
+INSERT INTO Team VALUES (NULL, 'All-Stars', 281, 1)
+INSERT INTO MetaTeam VALUES('All-Stars', 174, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(197, 383)
+GO
+
+INSERT INTO League VALUES (282, 'Wilkes-Barre Scranton Roller Derby', '2015-01-01')
+INSERT INTO MetaLeague VALUES ('Wilkes-Barre Scranton Roller Derby', '2015-01-01')
+INSERT INTO MetaLeague_League VALUES(175, 282)
+GO
+INSERT INTO Team VALUES (NULL, 'Roller Radicals', 282, 1)
+INSERT INTO MetaTeam VALUES('Roller Radicals', 175, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(198, 384)
+GO
+
+INSERT INTO League VALUES (283, 'Sonoma County Roller Derby', '2011-01-01')
+INSERT INTO MetaLeague VALUES ('Sonoma County Roller Derby', '2011-01-01')
+INSERT INTO MetaLeague_League VALUES(176, 283)
+GO
+INSERT INTO Team VALUES (NULL, 'Hella Organic Rollers', 283, 1)
+INSERT INTO MetaTeam VALUES('Hella Organic Rollers', 176, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(199, 385)
+GO
+
+INSERT INTO League VALUES (284, 'Eves of Destruction', '2018-01-01')
+INSERT INTO MetaLeague VALUES ('Eves of Destruction', '2018-01-01')
+INSERT INTO MetaLeague_League VALUES(177, 284)
+GO
+INSERT INTO Team VALUES (NULL, 'The A Team', 284, 1)
+INSERT INTO MetaTeam VALUES('The A Team', 177, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(200, 386)
+GO
+
+INSERT INTO League VALUES (285, 'Gorge Roller Derby', '2018-01-01')
+INSERT INTO MetaLeague VALUES ('Gorge Roller Derby', '2018-01-01')
+INSERT INTO MetaLeague_League VALUES(178, 285)
+GO
+INSERT INTO Team VALUES (NULL, 'All Stars', 285, 1)
+INSERT INTO MetaTeam VALUES('All Stars', 178, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(201, 387)
+GO
+
+UPDATE League SET Name = 'Emerald City Roller Derby' WHERE ID = 173
+-----
+
+--04-20-2019
+-----
+UPDATE League SET Name = 'Sun State Roller Derby' WHERE ID = 160
+-----
+
+
+--2019-05-07
+-----
+UPDATE League SET Name = 'Dub City Roller Derby' WHERE Id = 179
+UPDATE League SET Name = 'Royal City Roller Derby' WHERE Id = 250
+UPDATE League SET Name = 'Atlanta Roller Derby' WHERE Id = 58
+
+INSERT INTO League VALUES (286, 'Antwerp Roller Derby', '2014-10-01')
+INSERT INTO MetaLeague VALUES ('Antwerp Roller Derby', '2014-10-01')
+INSERT INTO MetaLeague_League VALUES(179, 286)
+GO
+INSERT INTO Team VALUES (NULL, 'All Stars', 286, 1)
+INSERT INTO MetaTeam VALUES('All Stars', 179, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(202, 388)
+GO
