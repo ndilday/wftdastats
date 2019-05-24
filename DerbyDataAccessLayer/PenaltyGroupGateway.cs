@@ -26,6 +26,23 @@ JOIN Jam_Player jp ON jp.ID = bt.JamPlayerID
 JOIN Team_Player tp ON tp.ID = jp.Team_PlayerID
 JOIN Penalty_BoxTime pb ON pb.BoxTimeID = bt.ID
 ";
+        private const string s_GetUnestimatedPenaltiesByGroupsQuery = @"
+SELECT DISTINCT pb.GroupID, tp.PlayerID, jp.JamID, ft.Code, p.ID
+FROM Penalty p
+JOIN FoulType ft ON ft.ID = p.FoulTypeID
+JOIN Jam_Player jp ON jp.ID = p.JamPlayerID
+JOIN Team_Player tp ON tp.ID = jp.Team_PlayerID
+JOIN Penalty_BoxTime pb ON pb.PenaltyID = p.ID
+WHERE jp.JamID NOT IN (SELECT JamID From JamTimeEstimate)
+";
+        private const string s_GetUnestimatedBoxTimesByGroupsQuery = @"
+SELECT DISTINCT pb.GroupID, tp.PlayerID, jp.JamID, bt.StartedInBox, bt.EndedInBox, bt.IsJammer, bt.ID
+FROM BoxTime bt
+JOIN Jam_Player jp ON jp.ID = bt.JamPlayerID
+JOIN Team_Player tp ON tp.ID = jp.Team_PlayerID
+JOIN Penalty_BoxTime pb ON pb.BoxTimeID = bt.ID
+WHERE jp.JamID NOT IN (SELECT JamID From JamTimeEstimate)
+";
 
         private const string s_GetPenaltiesByGroupsForTeamQuery = @"
 SELECT DISTINCT pb.GroupID, tp.PlayerID, jp.JamID, ft.Code, p.ID
@@ -80,9 +97,20 @@ WHERE
 
         public IList<PenaltyGroup> GetAllPenaltyGroups()
         {
-            var gps = GetGroupPenalties();
-            var gbts = GetGroupBoxTimes();
+            var gps = GetGroupPenalties(s_GetPenaltiesByGroupsQuery);
+            var gbts = GetGroupBoxTimes(s_GetBoxTimesByGroupsQuery);
+            return BuildPenaltyGroups(gps, gbts);
+        }
 
+        public IList<PenaltyGroup> GetUnestimatedPenaltyGroups()
+        {
+            var gps = GetGroupPenalties(s_GetUnestimatedPenaltiesByGroupsQuery);
+            var gbts = GetGroupBoxTimes(s_GetUnestimatedBoxTimesByGroupsQuery);
+            return BuildPenaltyGroups(gps, gbts);
+        }
+
+        private static IList<PenaltyGroup> BuildPenaltyGroups(Dictionary<int, List<Penalty>> gps, Dictionary<int, List<BoxTime>> gbts)
+        {
             List<PenaltyGroup> list = new List<PenaltyGroup>();
             foreach (KeyValuePair<int, List<Penalty>> group in gps)
             {
@@ -93,7 +121,7 @@ WHERE
                     PlayerID = penalties.First().PlayerID,
                     GroupID = group.Key
                 };
-                if(gbts.Any(bts => bts.Key == group.Key))
+                if (gbts.Any(bts => bts.Key == group.Key))
                 {
                     pg.BoxTimes = gbts[group.Key];
                 }
@@ -106,10 +134,10 @@ WHERE
             return list;
         }
 
-        private Dictionary<int, List<Penalty>> GetGroupPenalties()
+        private Dictionary<int, List<Penalty>> GetGroupPenalties(string query)
         {
             Dictionary<int, List<Penalty>> groupPenaltyMap = new Dictionary<int, List<Penalty>>();
-            using (var cmd = new SqlCommand(s_GetPenaltiesByGroupsQuery, _connection, _transaction))
+            using (var cmd = new SqlCommand(query, _connection, _transaction))
             {
                 cmd.Parameters.Clear();
                 using (var reader = cmd.ExecuteReader())
@@ -130,10 +158,10 @@ WHERE
             }
         }
 
-        private Dictionary<int, List<BoxTime>> GetGroupBoxTimes()
+        private Dictionary<int, List<BoxTime>> GetGroupBoxTimes(string query)
         {
             Dictionary<int, List<BoxTime>> groupBoxTimeMap = new Dictionary<int, List<BoxTime>>();
-            using (var cmd = new SqlCommand(s_GetBoxTimesByGroupsQuery, _connection, _transaction))
+            using (var cmd = new SqlCommand(query, _connection, _transaction))
             {
                 cmd.Parameters.Clear();
 

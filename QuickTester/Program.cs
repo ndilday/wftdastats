@@ -29,13 +29,15 @@ namespace QuickTester
             //string basicConnString = ConfigurationManager.ConnectionStrings["basicderby"].ConnectionString;
             //BasicProcessStatsheetDirectory(basicConnString, args[0]);
             string connString = ConfigurationManager.ConnectionStrings["derby"].ConnectionString;
-            ProcessStatsheetDirectory(connString, args[0], true);
-            SetUpCalculatedTables(connString);
+            HashSet<int> years;
+            ProcessStatsheetDirectory(connString, args[0], true, out years);
+            SetUpCalculatedTables(connString, years);
             
         }
 
-        static void ProcessStatsheetDirectory(string connString, string directoryPath, bool assumeATeams)
+        static void ProcessStatsheetDirectory(string connString, string directoryPath, bool assumeATeams, out HashSet<int> years)
         {
+            years = new HashSet<int>();
             if (!Directory.Exists(directoryPath))
             {
                 Console.WriteLine(directoryPath + " does not exist!");
@@ -54,6 +56,7 @@ namespace QuickTester
                     Console.WriteLine("Processing " + path);
                     timer.Restart();
                     StatbookModel model = StatbookReader.StatbookReader.ReadStatbook(path);
+                    years.Add(model.Date.Year);
                     importer.Import(connString, model, assumeATeams);
                     timer.Stop();
                     Console.WriteLine("Finished Processing " + path + ": " + timer.Elapsed.TotalSeconds);
@@ -106,27 +109,32 @@ namespace QuickTester
             }*/
         }
 
-        private static void SetUpCalculatedTables(string connString)
+        private static void SetUpCalculatedTables(string connString, HashSet<int> years)
         {
             Stopwatch timer = new Stopwatch();
             //new PlayerTrueSkillCalculator(connString).CalculateTrueSkills();
             Console.WriteLine("Calculating Durations");
             timer.Restart();
-            new DurationEstimatesCalculator(connString).CalculateDurationEstimates();
+            new DurationEstimatesCalculator(connString).CalculateNewEstimates();
             timer.Stop();
             Console.WriteLine("Finished Calculating Durations: " + timer.Elapsed.TotalSeconds);
             
-            Console.WriteLine("Calculating Situational Scores");
-            timer.Restart();
-            var sss = new SituationalScoreCalculator(connString).CalculateSituationalScores(out IList<JamTeamData> jamTeamData, out Dictionary<int, JamData> jamDataMap);
-            timer.Stop();
-            Console.WriteLine("Finished Calculating SituationalScores: " + timer.Elapsed.TotalSeconds);
+            Console.WriteLine("Calculating Annual Data");
             
-            Console.WriteLine("Calculating Secondary Tables");
-            timer.Restart();
-            new BoutDataCalculator(connString, sss, jamTeamData).CalculateSecondaryTables();
-            timer.Stop();
-            Console.WriteLine("Finished Calculating Secondary Tables: " + timer.Elapsed.TotalSeconds);
+            foreach (int year in years)
+            {
+                Console.WriteLine(year);
+                Console.WriteLine("Calculating SituationalScores");
+                timer.Restart();
+                var sss = new SituationalScoreCalculator(connString).CalculateSituationalScores(year, out IList<JamTeamData> jamTeamData, out Dictionary<int, JamData> jamDataMap);
+                timer.Stop();
+                Console.WriteLine("Finished Calculating SituationalScores: " + timer.Elapsed.TotalSeconds);
+                Console.WriteLine("Calculating Secondary Tables");
+                timer.Restart();
+                new BoutDataCalculator(connString, sss, jamTeamData).CalculateSecondaryTables();
+                timer.Stop();
+                Console.WriteLine("Finished Calculating Secondary Tables: " + timer.Elapsed.TotalSeconds);
+            }
         }
     }
 }

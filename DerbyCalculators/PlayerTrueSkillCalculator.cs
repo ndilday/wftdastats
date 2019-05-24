@@ -43,7 +43,7 @@ namespace DerbyCalculators
             _pjeMap = new JamPlayerEffectivenessGateway(connection, transaction).GetAllJamPlayerEffectiveness();
             _jams = new JamGateway(connection, transaction).GetAllJams();
             _boutMap = new BoutGateway(connection, transaction).GetBouts().ToDictionary(b => b.ID);
-            _jamData = new JamDataGateway(connection, transaction).GetAllJamTeamData();
+            _jamData = new JamDataGateway(connection, transaction).GetJamTeamDataForYear(2019);
             CalculatePointDeltaMaps();
 
             var jamOrder =

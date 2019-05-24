@@ -6,7 +6,7 @@ FROM Jam j
 JOIN Bout b ON b.ID = j.BoutID
 JOIN Team t1 ON b.HomeTeamID = t1.ID
 JOIN Team t2 ON b.AwayTeamID = t2.ID
-WHERE b.PlayDate >= '2018-01-01' AND t1.TeamTypeID = 1 AND t2.TeamTypeID = 1
+WHERE b.PlayDate >= '2019-01-01' AND t1.TeamTypeID = 1 AND t2.TeamTypeID = 1
 ),
 TPJammerPenalties(TeamPlayerID, Penalties) AS
 (
@@ -52,6 +52,21 @@ TPPoints(TeamPlayerID, Points) AS
 		jp.IsJammer = 1
 	GROUP BY tp.ID
 ),
+TPOppPoints(TeamPlayerID, Points) AS
+(
+	SELECT tp.ID, SUM(oj.Points)
+	FROM Jammer j
+	JOIN Jam_Player jp ON jp.ID = j.Jam_PlayerID
+	JOIN Team_Player tp ON tp.ID = jp.Team_PlayerID
+	JOIN JamSubset js ON js.JamID = jp.JamID
+	JOIN Jam_Player ojp ON ojp.JamID = js.JamID
+	JOIN Team_Player otp ON otp.ID = ojp.Team_PlayerID
+	JOIN Jammer oj ON oj.Jam_PlayerID = ojp.ID
+	WHERE
+		jp.IsJammer = 1 AND
+		otp.TeamID != tp.TeamID
+	GROUP BY tp.ID
+),
 TPService(TeamPlayerID, Bouts, Jams) AS
 (
 	SELECT tp.ID, COUNT(DISTINCT b.ID), COUNT(js.JamID)
@@ -71,6 +86,7 @@ SELECT
 	tps.Bouts AS Games, 
 	tps.Jams AS Jams, 
 	tpp.Points,
+	tpp.Points - tpop.Points AS Delta,
 	ISNULL(tpjp.Penalties, 0) AS Penalties, 
 	ISNULL(tpl.Leads, 0)/CAST(tps.Jams AS float) AS LeadRate, 
 	ISNULL(tpsp.StarPasses, 0) AS StarPasses
@@ -80,6 +96,7 @@ JOIN League l ON l.ID = t.LeagueID
 JOIN Player p ON p.ID = tp.PlayerID
 JOIN TPService tps ON tps.TeamPlayerID = tp.ID
 JOIN TPPoints tpp ON tpp.TeamPlayerID = tp.ID
+JOIN TPOppPoints tpop ON tpop.TeamPlayerID = tp.ID
 LEFT JOIN TPJammerPenalties tpjp ON tpjp.TeamPlayerID = tp.ID
 LEFT JOIN TPLeads tpl ON tpl.TeamPlayerID = tp.ID
 LEFT JOIN TPStarPasses tpsp ON tpsp.TeamPlayerID = tp.ID

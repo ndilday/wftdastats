@@ -19,6 +19,15 @@ WHERE
     JamNum = @Number
 ";
 
+        internal const string s_GetUnestimatedJamsQuery = @"
+SELECT * 
+FROM Jam 
+WHERE ID NOT IN 
+(
+    SELECT JamID FROM JamTimeEstimate
+)
+";
+
         internal const string s_GetJamsForRinxterBoutQuery = @"
 SELECT j.*
 FROM Jam j
@@ -191,6 +200,25 @@ INSERT INTO JAM VALUES (@IsFirstHalf, @Number, @BoutID)
                 cmd.ExecuteNonQuery();
             }
             return GetJam(boutID, isFirstHalf, jamNumber);
+        }
+
+        public IList<Jam> GetUnestimatedJams()
+        {
+            var dataList = new List<Jam>();
+            using (var cmd = new SqlCommand(s_GetUnestimatedJamsQuery, _connection, _transaction))
+            {
+                cmd.Parameters.Clear();
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var data = ReadData(reader);
+                        dataList.Add(data);
+                    }
+                }
+            }
+            return dataList;
         }
 
         internal Jam ReadData(SqlDataReader reader)

@@ -97,7 +97,7 @@ namespace DerbyCalculators
             _connectionString = connectionString;
         }
 
-        public void CalculateDurationEstimates(bool repopulate = false)
+        public void CalculateDurationEstimates()
         {
             SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -115,22 +115,9 @@ namespace DerbyCalculators
             Dictionary<int, int> jamBoutMap;
             Dictionary<int, Jam> jamMap;
             Dictionary<int, IGrouping<int, PenaltyGroup>> penaltyGroupMap;
-            if (repopulate)
-            {
-                jamBoutMap = _jams.ToDictionary(j => j.ID, j => j.BoutID);
-                jamMap = _jams.ToDictionary(j => j.ID);
-                penaltyGroupMap = _penaltyGroups.GroupBy(pg => jamBoutMap[pg.BoxTimes.First().JamID]).ToDictionary(gp => gp.Key);
-            }
-            else
-            {
-                // we only want the jams that haven't already been estimated
-                var estimatedJams = jtlGateway.GetAllJamTimeEstimates().ToDictionary(jte => jte.JamID);
-                var neededJams = _jams.Where(j => !estimatedJams.ContainsKey(j.ID));
-                jamBoutMap = neededJams.ToDictionary(j => j.ID, j => j.BoutID);
-                jamMap = neededJams.ToDictionary(j => j.ID);
-                _penaltyGroups = _penaltyGroups.Where(pg => jamMap.ContainsKey(pg.BoxTimes.First().JamID)).ToList();
-                penaltyGroupMap = _penaltyGroups.GroupBy(pg => jamBoutMap[pg.BoxTimes.First().JamID]).ToDictionary(gp => gp.Key);
-            }
+            jamBoutMap = _jams.ToDictionary(j => j.ID, j => j.BoutID);
+            jamMap = _jams.ToDictionary(j => j.ID);
+            penaltyGroupMap = _penaltyGroups.GroupBy(pg => jamBoutMap[pg.BoxTimes.First().JamID]).ToDictionary(gp => gp.Key);
 
             var boutJams = jamMap.Values.GroupBy(j => j.BoutID);
 
@@ -141,8 +128,50 @@ namespace DerbyCalculators
                 ProcessBout(boutJamSet, penaltyGroupMap[boutJamSet.Key], jamEstimateMap);
             }
             var boxTimeEstimates = CalculateBoxTimeEstimates(jamEstimateMap);
-            jtlGateway.InsertJamTimeEstimates(jamEstimateMap.Values, repopulate);
-            new BoxTimeEstimateGateway(connection, transaction).InsertBoxTimeEstimates(boxTimeEstimates, repopulate);
+            jtlGateway.InsertJamTimeEstimates(jamEstimateMap.Values, true);
+            new BoxTimeEstimateGateway(connection, transaction).InsertBoxTimeEstimates(boxTimeEstimates, true);
+            transaction.Commit();
+            connection.Close();
+        }
+
+        public void CalculateNewEstimates()
+        {
+            SqlConnection connection = new SqlConnection(_connectionString);
+            connection.Open();
+            SqlTransaction transaction = connection.BeginTransaction();
+            var jtlGateway = new JamTimeLimitGateway(connection, transaction);
+
+            if (_jams == null)
+            {
+                _jams = new JamGateway(connection, transaction).GetUnestimatedJams();
+            }
+            if (_penaltyGroups == null)
+            {
+                _penaltyGroups = new PenaltyGroupGateway(connection, transaction).GetUnestimatedPenaltyGroups();
+            }
+            Dictionary<int, int> jamBoutMap;
+            Dictionary<int, Jam> jamMap;
+            Dictionary<int, IGrouping<int, PenaltyGroup>> penaltyGroupMap;
+            
+            // we only want the jams that haven't already been estimated
+            var estimatedJams = jtlGateway.GetAllJamTimeEstimates().ToDictionary(jte => jte.JamID);
+            var neededJams = _jams.Where(j => !estimatedJams.ContainsKey(j.ID));
+            jamBoutMap = neededJams.ToDictionary(j => j.ID, j => j.BoutID);
+            jamMap = neededJams.ToDictionary(j => j.ID);
+            _penaltyGroups = _penaltyGroups.Where(pg => jamMap.ContainsKey(pg.BoxTimes.First().JamID)).ToList();
+            penaltyGroupMap = _penaltyGroups.GroupBy(pg => jamBoutMap[pg.BoxTimes.First().JamID]).ToDictionary(gp => gp.Key);
+
+            var boutJams = jamMap.Values.GroupBy(j => j.BoutID);
+
+            var jamEstimateMap = CalculateJamDurationLimits(connection, transaction, jamMap);
+
+            foreach (IGrouping<int, Jam> boutJamSet in boutJams)
+            {
+                ProcessBout(boutJamSet, penaltyGroupMap[boutJamSet.Key], jamEstimateMap);
+            }
+            var boxTimeEstimates = CalculateBoxTimeEstimates(jamEstimateMap);
+            jtlGateway.InsertJamTimeEstimates(jamEstimateMap.Values, false);
+            new BoxTimeEstimateGateway(connection, transaction).InsertBoxTimeEstimates(boxTimeEstimates, false);
             transaction.Commit();
             connection.Close();
         }

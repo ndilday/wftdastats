@@ -25,7 +25,7 @@ namespace DerbyCalculators
             _jamTeamData = jamTeamData;
         }
 
-        public Dictionary<FoulComparison, Dictionary<int, float>> CalculateSituationalScores(out IList<JamTeamData> jamTeamData, out Dictionary<int, JamData> jamDataMap)
+        public Dictionary<FoulComparison, Dictionary<int, float>> CalculateSituationalScores(int year, out IList<JamTeamData> jamTeamData, out Dictionary<int, JamData> jamDataMap)
         {
             SqlConnection connection = new SqlConnection(_connectionString);
             connection.Open();
@@ -37,13 +37,13 @@ namespace DerbyCalculators
             if (_jamTeamData == null)
             {
                 
-                _jamTeamData = gateway.GetAllJamTeamData();
+                _jamTeamData = gateway.GetJamTeamDataForYear(year);
                 jamTeamData = _jamTeamData;
             }
 
             Dictionary<FoulComparison, SortedList<int, int>> bigMap = CreateBigMap(jamDataMap);
             Dictionary<FoulComparison, Dictionary<int, float>> sss = CreateSituationalScores(bigMap);
-            new SituationalScoreGateway(connection, transaction).InsertSituationalScores(sss);
+            new SituationalScoreGateway(connection, transaction).InsertSituationalScoresForYear(year, sss);
             transaction.Commit();
             connection.Close();
             return sss;

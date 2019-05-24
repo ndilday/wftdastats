@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -10,6 +11,7 @@ namespace DerbyDataAccessLayer
     {
         #region Queries
         private const string s_GetAllJamTeamDataQuery = "SELECT * FROM Jam_Team_Data_View";
+        private const string s_GetJamTeamDataByYearQuery = "EXEC GetJamTeamDataView {0}";
         private const string s_GetJamDataForTeamQuery = "SELECT * FROM Jam_Team_Data_View WHERE TeamID = @TeamID";
         private const string s_GetAllJamDataQuery = 
 @"SELECT j.ID as JamID, b.PlayDate, t1.TeamTypeId AS HomeTeamType, t2.TeamTypeId AS AwayTeamType 
@@ -63,10 +65,10 @@ JOIN Team t2 ON b.AwayTeamID = t2.ID";
             return jamData;
         }
 
-        public IList<JamTeamData> GetAllJamTeamData()
+        public IList<JamTeamData> GetJamTeamDataForYear(int year)
         {
             IList<JamTeamData> jamFouls = new List<JamTeamData>();
-            using (var cmd = new SqlCommand(s_GetAllJamTeamDataQuery, _connection, _transaction))
+            using (var cmd = new SqlCommand(String.Format(s_GetAllJamTeamDataQuery, year), _connection, _transaction))
             {
                 cmd.Parameters.Clear();
                 using (var reader = cmd.ExecuteReader())
