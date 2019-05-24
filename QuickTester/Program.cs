@@ -131,7 +131,7 @@ namespace QuickTester
                 Console.WriteLine("Finished Calculating SituationalScores: " + timer.Elapsed.TotalSeconds);
                 Console.WriteLine("Calculating Secondary Tables");
                 timer.Restart();
-                new BoutDataCalculator(connString, sss, jamTeamData).CalculateSecondaryTables();
+                new BoutDataCalculator(connString, sss, jamTeamData, year).CalculateSecondaryTables();
                 timer.Stop();
                 Console.WriteLine("Finished Calculating Secondary Tables: " + timer.Elapsed.TotalSeconds);
             }
