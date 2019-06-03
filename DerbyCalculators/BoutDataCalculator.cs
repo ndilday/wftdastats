@@ -35,11 +35,11 @@ namespace DerbyCalculators
         {
             Stopwatch timer = new Stopwatch();
             //new PlayerTrueSkillCalculator(connString).CalculateTrueSkills();
-            Console.WriteLine("Calculating Jam Player Effectiveness");
+            Console.WriteLine("Calculating Jam Team Effectiveness");
             timer.Restart();
             CalculateJamTeamEffectiveness();
             timer.Stop();
-            Console.WriteLine("Finished Calculating Jam Player Effectiveness: " + timer.Elapsed.TotalSeconds);
+            Console.WriteLine("Finished Calculating Jam Team Effectiveness: " + timer.Elapsed.TotalSeconds);
 
             Console.WriteLine("Calculating Player Effectiveness");
             timer.Restart();
@@ -279,15 +279,6 @@ namespace DerbyCalculators
             ProcessPlayerJamPenalties(jamBoxTimeMap, jamID, playerPenaltyGroups);
 
             // try to estimate what portion of a jam someone missed via time in the box
-            double share;
-            if(_year < 2019)
-            {
-                share = player.IsJammer ? 0.5 : 0.125;
-            }
-            else
-            {
-                share = player.IsJammer ? 0.3 : 0.175;
-            }
             int timeInBox = 0;
 
             if (jamBoxTimeMap.ContainsKey(jamID))

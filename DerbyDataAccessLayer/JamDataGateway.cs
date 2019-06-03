@@ -87,9 +87,14 @@ JOIN Team t2 ON b.AwayTeamID = t2.ID";
         public IList<JamTeamData> GetJamDataForTeam(int teamID)
         {
             IList<JamTeamData> jamFouls = new List<JamTeamData>();
+            using (SqlCommand comm = new SqlCommand("SET ARITHABORT ON", _connection, _transaction))
+            {
+                comm.ExecuteNonQuery();
+            }
             using (var cmd = new SqlCommand(s_GetJamDataForTeamQuery, _connection, _transaction))
             {
                 cmd.Parameters.Clear();
+                cmd.CommandTimeout = 0;
                 cmd.Parameters.Add("@TeamID", SqlDbType.Int).Value = teamID;
 
                 using (var reader = cmd.ExecuteReader())

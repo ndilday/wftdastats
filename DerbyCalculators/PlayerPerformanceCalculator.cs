@@ -57,6 +57,9 @@ namespace DerbyCalculators
             Dictionary<int, PlayerPerformance> pps = new Dictionary<int, PlayerPerformance>(25);
             Dictionary<int, double> jamTotalPortionMap = new Dictionary<int, double>(300);
 
+            // we use "jam portions" to divide up the total value of the jam among participating players
+            // we give jammers an additional multiplier to their jam portions, based on year, to represent their greater impact on team success
+
             foreach(Jam jam in jams)
             {
                 var pe = jpe[jam.ID];
@@ -109,13 +112,14 @@ namespace DerbyCalculators
                         PenaltyCost = 0,
                         PointDelta = jd.PointDelta
                     };
+                    double jammerRatio = bouts[jamBoutMap[jam.ID]].BoutDate.Year == 2019 ? (12.0/7.0) : 4.0;
                     if (jamTotalPortionMap.ContainsKey(jam.ID))
                     {
-                        jamTotalPortionMap[jam.ID] += eff.IsJammer ? eff.JamPortion * 4 : eff.JamPortion;
+                        jamTotalPortionMap[jam.ID] += eff.IsJammer ? eff.JamPortion * jammerRatio : eff.JamPortion;
                     }
                     else 
                     {
-                        jamTotalPortionMap[jam.ID] = eff.IsJammer ? eff.JamPortion * 4 : eff.JamPortion;
+                        jamTotalPortionMap[jam.ID] = eff.IsJammer ? eff.JamPortion * jammerRatio : eff.JamPortion;
                     }
                     bp.Jams.Add(jp);
                 }
@@ -581,12 +585,13 @@ namespace DerbyCalculators
             pp.JammerPerformance = new RolledUpPerformanceData();
             foreach (BoutPerformance bp in pp.Bouts)
             {
+                double jammerShare = bp.BoutDate.Year == 2019 ? (12.0 / 7.0) : 4.0;
                 bp.BlockerPerformance = new RolledUpPerformanceData();
                 bp.JammerPerformance = new RolledUpPerformanceData();
                 foreach (JamPerformance jp in bp.Jams)
                 {
                     double averagePenaltyCost = jp.JammerJamPercentage > 0 ? avgPenCost.JammerPointCost : avgPenCost.BlockerPointCost;
-                    double jamShare = (jp.JammerJamPercentage * 4 + jp.BlockerJamPercentage) / jamTotalPortionMap[jp.JamID];
+                    double jamShare = (jp.JammerJamPercentage * jammerShare + jp.BlockerJamPercentage) / jamTotalPortionMap[jp.JamID];
                     jp.DeltaPortionVersusMedian = (jp.PointDelta - jp.MedianDelta) * jamShare;
                     jp.PlayerValue = jp.DeltaPortionVersusMedian - jp.PenaltyCost + averagePenaltyCost;
                     var rollUp = jp.JammerJamPercentage > 0 ? bp.JammerPerformance : bp.BlockerPerformance;
