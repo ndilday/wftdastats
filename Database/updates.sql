@@ -416,3 +416,13 @@ INSERT INTO MetaTeam VALUES('Bad Bunnies', 180, 1)
 GO
 INSERT INTO MetaTeam_Team VALUES(203, 389)
 GO
+
+INSERT INTO League VALUES (288, 'Northside Rollers', '2014-12-01')
+INSERT INTO MetaLeague VALUES ('Northside Rollers', '2014-12-01')
+INSERT INTO MetaLeague_League VALUES(181, 288)
+GO
+INSERT INTO Team VALUES (NULL, 'Death Stars', 288, 1)
+INSERT INTO MetaTeam VALUES('Death Stars', 181, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(204, 390)
+GO
