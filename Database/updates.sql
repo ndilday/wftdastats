@@ -396,6 +396,7 @@ UPDATE League SET Name = 'Sun State Roller Derby' WHERE ID = 160
 UPDATE League SET Name = 'Dub City Roller Derby' WHERE Id = 179
 UPDATE League SET Name = 'Royal City Roller Derby' WHERE Id = 250
 UPDATE League SET Name = 'Atlanta Roller Derby' WHERE Id = 58
+UPDATE League SET Name = 'Rat City Roller Derby' WHERE Id = 46
 
 INSERT INTO League VALUES (286, 'Antwerp Roller Derby', '2014-10-01')
 INSERT INTO MetaLeague VALUES ('Antwerp Roller Derby', '2014-10-01')
