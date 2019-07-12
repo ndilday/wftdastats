@@ -101,5 +101,5 @@ LEFT JOIN TPJammerPenalties tpjp ON tpjp.TeamPlayerID = tp.ID
 LEFT JOIN TPLeads tpl ON tpl.TeamPlayerID = tp.ID
 LEFT JOIN TPStarPasses tpsp ON tpsp.TeamPlayerID = tp.ID
 WHERE
-	t.TeamTypeID = 1
+	t.TeamTypeID = 1 AND Jams > 9
 ORDER BY l.Name, tps.Jams DESC
