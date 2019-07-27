@@ -112,7 +112,7 @@ namespace DerbyCalculators
                         PenaltyCost = 0,
                         PointDelta = jd.PointDelta
                     };
-                    double jammerRatio = bouts[jamBoutMap[jam.ID]].BoutDate.Year == 2019 ? (12.0/7.0) : 4.0;
+                    double jammerRatio = bouts[jamBoutMap[jam.ID]].BoutDate.Year == 2019 ? 2.0 : 4.0;
                     if (jamTotalPortionMap.ContainsKey(jam.ID))
                     {
                         jamTotalPortionMap[jam.ID] += eff.IsJammer ? eff.JamPortion * jammerRatio : eff.JamPortion;
