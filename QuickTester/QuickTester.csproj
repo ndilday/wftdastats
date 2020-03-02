@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>QuickTester</RootNamespace>
     <AssemblyName>QuickTester</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -65,6 +66,13 @@
       <Project>{8f1a2a52-856f-48a2-8cd9-9d3027a6ed96}</Project>
       <Name>StatbookReader</Name>
     </ProjectReference>
+    <ProjectReference Include="..\StatsSiteReader\StatsSiteReader.csproj">
+      <Project>{169f7938-f28b-4537-b8a7-9aa0cfba905f}</Project>
+      <Name>StatsSiteReader</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

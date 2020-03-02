@@ -21,10 +21,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTSReader", "FTSReader\FTSReader.csproj", "{31A95B5B-4E85-46AD-A932-B779EAAE6736}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StatsSiteReader", "StatsSiteReader\StatsSiteReader.csproj", "{169F7938-F28B-4537-B8A7-9AA0CFBA905F}"
+EndProject
 Global
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -62,12 +61,22 @@ Global
 		{31A95B5B-4E85-46AD-A932-B779EAAE6736}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31A95B5B-4E85-46AD-A932-B779EAAE6736}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31A95B5B-4E85-46AD-A932-B779EAAE6736}.Release|Any CPU.Build.0 = Release|Any CPU
+		{169F7938-F28B-4537-B8A7-9AA0CFBA905F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{169F7938-F28B-4537-B8A7-9AA0CFBA905F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{169F7938-F28B-4537-B8A7-9AA0CFBA905F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{169F7938-F28B-4537-B8A7-9AA0CFBA905F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ECC85C32-C5B6-461F-A3A7-C9E2B82F289C}
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
+	EndGlobalSection
+	GlobalSection(Performance) = preSolution
+		HasPerformanceSessions = true
 	EndGlobalSection
 	GlobalSection(Performance) = preSolution
 		HasPerformanceSessions = true

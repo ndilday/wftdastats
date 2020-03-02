@@ -76,7 +76,8 @@ JOIN Team t2 ON b.AwayTeamID = t2.ID";
                     // if the team record doesn't exist, add it
                     while (reader.Read())
                     {
-                        jamFouls.Add(ReadJamTeamData(reader));
+                        var jamTeamData = ReadJamTeamData(reader);
+                        jamFouls.Add(jamTeamData);
                     }
                     reader.Close();
                 }
