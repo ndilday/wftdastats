@@ -13,8 +13,8 @@ namespace StatbookReader
 {
     public class RinxterDataImporter
     {
-        //string url = "http://stats-repo.wftda.com/rx/ds";
-        const string Rinxter_Url = "http://rinxter-test.cloudapp.net/rx/ds";
+        const string Rinxter_Url = "http://stats-repo.wftda.com/rx/ds";
+        //const string Rinxter_Url = "http://rinxter-test.cloudapp.net/rx/ds";
 
         //private string _statbookDownloadDirectory;
         public void Import(string connectionString, bool assumeATeams)
@@ -149,11 +149,11 @@ namespace StatbookReader
                         if (response.IsSuccessStatusCode)
                         {
                             var boutData = response.Content.ReadAsAsync<RinxterBoutData[]>().Result;
-                            //boutIdList.Add(model.id);
-                            if (teamIdList.Contains(boutData[0].team1Id) || teamIdList.Contains(boutData[0].team2Id))
+                            boutIdList.Add(model.id);
+                            /*if (teamIdList.Contains(boutData[0].team1Id) || teamIdList.Contains(boutData[0].team2Id))
                             {
                                 boutIdList.Add(model.id);
-                            }
+                            }*/
                         }
                     }
                 }

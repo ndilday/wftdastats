@@ -19,26 +19,26 @@ namespace QuickTester
     {
         static void Main(string[] args)
         {
+            string connString = ConfigurationManager.ConnectionStrings["derby"].ConnectionString;
+
             /*
             FTSScraper scraper = new FTSScraper();
             scraper.PopulateMap();
             */
 
-            StatsScraper statsScraper = new StatsScraper();
-            statsScraper.BuildPlayoffRankings();
+            //StatsScraper statsScraper = new StatsScraper();
+            //statsScraper.BuildPlayoffRankings();
 
-            //RinxterDataImporter importer = new RinxterDataImporter();
-            //importer.Import(connString, true);
+            RinxterDataImporter importer = new RinxterDataImporter();
+            importer.Import(connString, true);
 
             //string basicConnString = ConfigurationManager.ConnectionStrings["basicderby"].ConnectionString;
             //BasicProcessStatsheetDirectory(basicConnString, args[0]);
-
-            /*
-            string connString = ConfigurationManager.ConnectionStrings["derby"].ConnectionString;
+            
             HashSet<int> years;
             ProcessStatsheetDirectory(connString, args[0], true, out years);
             SetUpCalculatedTables(connString, years);
-            */
+            
         }
 
         static void ProcessStatsheetDirectory(string connString, string directoryPath, bool assumeATeams, out HashSet<int> years)

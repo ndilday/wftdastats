@@ -427,3 +427,259 @@ INSERT INTO MetaTeam VALUES('Death Stars', 181, 1)
 GO
 INSERT INTO MetaTeam_Team VALUES(204, 390)
 GO
+
+--2019-08-10
+-- Blue Ridge
+UPDATE Player SET Number = '00' WHERE Id = 416
+UPDATE Player SET Name = 'Drunken Sayler' WHERE Id = 6232
+UPDATE Player SET Name = 'Rider' WHERE ID = 406
+UPDATE Player SET Name = 'Smash P''Tater' WHERE ID = 405
+UPDATE Player SET Name = 'Aurora Thunder' WHERE ID = 419
+UPDATE Player SET Name = 'R.P.Em.' WHERE ID = 4480
+-- Boston
+UPDATE Player SET Number = '2' WHERE Id = 317
+UPDATE Player SET Name = 'Caitlin Monaghan' WHERE Id = 298
+-- Detroit
+UPDATE Player SET Name = 'Finn-Purcella' WHERE Id = 1158
+UPDATE Player SET Name = 'Genei' WHERE Id = 1168
+UPDATE Player SET Name = 'Price' WHERE Id = 5940
+UPDATE Player SET Name = 'Ryder' WHERE Id = 5761
+UPDATE Player SET Name = 'Oi!' WHERE Id = 5049
+UPDATE Player SET Name = 'Storm CrasHer' WHERE Id = 1181
+-- Gem City
+UPDATE Player SET Name = 'BULLISTIC' WHERE Id = 7678
+UPDATE Player SET Name = 'Emily Suter' WHERE Id = 7681
+UPDATE Player SET Name = 'Florida Man' WHERE Id = 7682
+-- Madison
+UPDATE Jam_Player SET Team_PlayerID = 2695 WHERE Team_PlayerID = 9921
+UPDATE Jam_Player_Effectiveness SET PlayerID = 2111 WHERE PlayerId = 8246
+UPDATE Player SET Number = '9' WHERE Id = 2111
+DELETE FROM Team_Player WHERE ID = 9921
+DELETE FROM Player WHERE ID = 8246
+UPDATE Player SET Name = 'One Hit Wanda' WHERE Id = 5999
+UPDATE Jam_Player SET Team_PlayerID = 2700 WHERE Team_PlayerID = 10518
+UPDATE Jam_Player_Effectiveness SET PlayerId = 2116 WHERE PlayerId = 8793
+UPDATE Player SET Number = '52' WHERE Id = 2116
+DELETE FROM Team_Player WHERE ID = 10518
+DELETE FROM Player WHERE ID = 8793
+-- Ohio
+UPDATE Jam_Player SET Team_PlayerID = 3403 WHERE Team_PlayerID = 10828
+UPDATE Jam_Player_Effectiveness SET PlayerId = 2645 WHERE PlayerId = 9059
+UPDATE Player SET Number = '18' WHERE Id = 2645
+DELETE FROM Team_Player WHERE ID = 10828
+DELETE FROM Player WHERE ID = 9059
+UPDATE Jam_Player SET Team_PlayerID = 7297 WHERE Team_PlayerID = 9941
+UPDATE Jam_Player_Effectiveness SET PlayerId = 5775 WHERE PlayerId = 7297
+UPDATE Player SET Name = 'BrussKnuckles' WHERE Id = 5775
+DELETE FROM Team_Player WHERE ID = 9941
+DELETE FROM Player WHERE ID = 7297
+UPDATE Player SET Name = 'Jane, Literally' WHERE Id = 2649
+UPDATE Player SET Name = 'Smash Panda' WHERE Id = 8264
+UPDATE Player SET Name = 'Betty (for this jelly)' WHERE Id = 5292
+UPDATE Player SET Name = 'Chainsaw' WHERE Id = 2628
+-- Naptown
+UPDATE Player SET Name = 'Willsmith' WHERE Id = 2473
+UPDATE Player SET Number = '5' WHERE Id = 2483
+UPDATE Player SET Name = 'Britt Mika' WHERE Id = 5815
+UPDATE Player SET Name = 'Iggy' WHERE Id = 6517
+UPDATE Player SET Name = 'Langer' WHERE Id = 5130
+UPDATE Player SET Name = 'Emily Udell' WHERE Id = 6181
+-- Sailor City
+UPDATE Player SET Name = 'Tamara Tancredi' WHERE Id = 8846
+UPDATE Player SET Name = 'Jules' WHERE Id = 8847
+UPDATE Player SET Name = 'Romo' WHERE Id = 8848
+UPDATE Player SET Name = 'Amanita' WHERE Id = 8256
+UPDATE Player SET Name = 'Finishit' WHERE Id = 8257
+UPDATE Player SET Name = 'Roja' WHERE Id = 8850
+UPDATE Player SET Name = 'Carrumán' WHERE Id = 8851
+--Tampa
+UPDATE Player SET Name = 'Rojo Grande' WHERE Id = 5730
+UPDATE Player SET Name = 'Wasylkiw' WHERE Id = 3608
+UPDATE Player SET Name = 'Rude' WHERE Id = 8955
+-- Toronto
+UPDATE Player SET Name = 'Red Zeppelin' WHERE Id = 7920
+UPDATE Player SET Name = 'Jamie''s Got a Gun' WHERE Id = 7919
+UPDATE Jam_Player SET Team_PlayerID = 6574 WHERE Team_PlayerID = 10200
+UPDATE Jam_Player_Effectiveness SET PlayerId = 3757 WHERE PlayerId = 8502
+UPDATE Player SET Number = '01' WHERE Id = 3757
+DELETE FROM Team_Player WHERE ID = 10200
+DELETE FROM Player WHERE ID = 8502
+UPDATE Player SET Name = 'Annguard' WHERE Id = 7923
+UPDATE Player SET Name = 'Scrappy' WHERE Id = 7921
+UPDATE Player SET Name = 'THAT Meg Fenway' WHERE Id = 5107
+-- Tri-City
+UPDATE Player SET Name = 'Anna Maul' WHERE Id = 4368
+UPDATE Player SET Number = '20' WHERE Id = 5018
+UPDATE Player SET Name = 'Christie Henderson' WHERE Id = 6255
+UPDATE Player SET Name = 'Kristy Skelton' WHERE Id = 3759
+UPDATE Player SET Name = 'Superstack' WHERE Id = 3747
+UPDATE Player SET Number = '2042' WHERE Id = 3756
+
+--2019-08-19
+INSERT INTO League VALUES (289, 'Metropolitan Roller Derby', '2011-12-01')
+INSERT INTO MetaLeague VALUES ('Metropolitan Roller Derby', '2011-12-01')
+INSERT INTO MetaLeague_League VALUES(182, 289)
+GO
+INSERT INTO Team VALUES (NULL, 'All Stars', 289, 1)
+INSERT INTO MetaTeam VALUES('All Stars', 182, 1)
+GO
+INSERT INTO MetaTeam_Team VALUES(205, 391)
+GO
+
+-- 2019-09-01
+-- Angel City
+UPDATE Jam_Player SET Team_PlayerID = 10059 WHERE Team_PlayerID = 10107
+UPDATE Jam_Player_Effectiveness SET PlayerId = 8378 WHERE PlayerId = 8419
+DELETE FROM Team_Player WHERE ID = 10107
+DELETE FROM Player WHERE ID = 8419
+UPDATE Jam_Player SET Team_PlayerID = 6538 WHERE Team_PlayerID = 9832
+UPDATE Jam_Player_Effectiveness SET PlayerId = 5088 WHERE PlayerId = 8161
+DELETE FROM Team_Player WHERE ID = 9832
+DELETE FROM Player WHERE ID = 8161
+UPDATE Player SET Name = 'BonnieNicole Thunderstormz' WHERE ID = 8418
+UPDATE Player SET Name = 'Lo Betancourt' WHERE ID = 5088
+UPDATE Player SET Name = 'Smash' WHERE ID = 7973
+-- Atlanta
+UPDATE Player SET Number = '76' WHERE ID = 195
+UPDATE Player SET Number = '12' WHERE ID = 193
+UPDATE Player SET Name = 'Baller Shot Caller' WHERE ID = 1396
+UPDATE Player SET Name = 'Erykah Ba-Doozie' WHERE ID = 4150
+-- Bay Area
+UPDATE Player SET Name = 'Knockout' WHERE ID = 277
+UPDATE Player SET Name = 'Legs//Cité' WHERE ID = 8436
+UPDATE Player SET Name = 'Dirtt' WHERE ID = 5073
+UPDATE Player SET Name = 'Kate Silver' WHERE ID = 7922
+UPDATE Player SET Name = 'Blood, Sweat, and Ears' WHERE ID = 269
+-- Bear City
+UPDATE Player SET Name = 'Bambickel' WHERE ID = 4530
+UPDATE Player SET Number = '666' WHERE ID = 5602
+-- Helsinki
+UPDATE Player SET Name = 'MIA' WHERE ID = 1712
+UPDATE Player SET Name = 'Malou' WHERE ID = 4068
+UPDATE Player SET Name = 'Kujala' WHERE ID = 6018
+UPDATE Player SET Name = 'Majiu Rinne' WHERE ID = 1718
+UPDATE Player SET Name = 'Sara Ekholm' WHERE ID = 1720
+UPDATE Player SET Name = 'Ruotalainen' WHERE ID = 5178
+UPDATE Player SET Name = 'Varpu Knuuttila' WHERE ID = 1723
+-- Lomme
+UPDATE Player SET Number = '712' WHERE ID = 8916
+UPDATE Player SET Number = '86' WHERE ID = 8918
+-- Paris
+UPDATE Jam_Player SET Team_PlayerID = 9717 WHERE Team_PlayerID = 10076
+UPDATE Jam_Player_Effectiveness SET PlayerId = 8055 WHERE PlayerId = 8395
+DELETE FROM Team_Player WHERE ID = 10076
+DELETE FROM Player WHERE ID = 8395
+-- Rainy
+UPDATE Player SET Name = 'Ducky' WHERE ID = 6200
+UPDATE Player SET Name = 'Blondie' WHERE ID = 5220
+UPDATE Player SET Name = 'Lauren Swaffield' WHERE ID = 5222
+UPDATE Player SET Name = 'Rascal' WHERE ID = 5223
+UPDATE Player SET Name = 'Elizabeth Yeatman' WHERE ID = 5227
+UPDATE Player SET Name = 'Banshee' WHERE ID = 5229
+-- Santa Cruz
+UPDATE Player SET Number = '3' WHERE ID = 3406
+UPDATE Player SET Name = 'E-Wrecks' WHERE ID = 8399
+UPDATE Player SET Name = 'Mad 4 Gravy' WHERE ID = 3407
+UPDATE Player SET Name = 'CassieBeck' WHERE ID = 5650
+UPDATE Player SET Name = 'Killer Vee' WHERE ID = 8018
+UPDATE Player SET Name = 'High Roller' WHERE ID = 8807
+UPDATE Player SET Name = 'Jurassic Snark' WHERE ID = 8400
+-- Texas
+UPDATE Player SET Name = 'Kris Rage-o' WHERE ID = 8358
+UPDATE Player SET Name = 'Kaptain sassy' WHERE ID = 7977
+UPDATE Player SET Name = 'Gravy, Baby!' WHERE ID = 3658
+UPDATE Player SET Name = 'Nine Lives' WHERE ID = 5072
+UPDATE Jam_Player SET Team_PlayerID = 9635 WHERE Team_PlayerID = 10131
+UPDATE Jam_Player_Effectiveness SET PlayerId = 7977 WHERE PlayerId = 8441
+DELETE FROM Team_Player WHERE ID = 10131
+DELETE FROM Player WHERE ID = 8441
+-- Windy
+UPDATE Player SET Name = 'Kickin'' McChugget' WHERE ID = 6518
+UPDATE Player SET Name = 'Tricky Pixie' WHERE ID = 8345
+UPDATE Player SET Name = 'Regina S.P.E.C.T.R.E.' WHERE ID = 3948
+UPDATE Player SET Name = 'Killanois' WHERE ID = 3947
+UPDATE Player SET Name = 'Maulicious' WHERE ID = 5011
+UPDATE Player SET Name = 'Vazquez' WHERE ID = 6270
+UPDATE Player SET Name = 'Rita Hateworthy' WHERE ID = 4837
+
+-- 2019-09-08
+-- Ann Arbor
+UPDATE Player SET Name = 'Goddamn Goddamn' WHERE ID = 8779
+UPDATE Player SET Name = 'Mel Havelka' WHERE ID = 6002
+UPDATE Player SET Name = 'Hand Over Fist' WHERE ID = 8781
+-- Arizona
+UPDATE Player SET Name = 'Don''t Blink' WHERE ID = 5248
+UPDATE Player SET Name = 'Sure, man' WHERE ID = 6161
+UPDATE Player SET Name = 'Jess West' WHERE ID = 158
+UPDATE Player SET Name = 'LUZER' WHERE ID = 156
+-- Crime
+UPDATE Player SET Number = '0347' WHERE ID = 935
+UPDATE Player SET Name = 'YAS' WHERE ID = 7613
+UPDATE Player SET Name = 'Kix' WHERE ID = 920
+-- Denver
+UPDATE Player SET Number = '20' WHERE ID = 1134
+UPDATE Player SET Name = 'Leah' WHERE ID = 8131
+UPDATE Player SET Name = 'Gobrecht' WHERE ID = 4655
+UPDATE Player SET Name = 'CopperTop Crush' WHERE ID = 5080
+UPDATE Player SET Name = 'Chelsea Garton' WHERE ID = 4626
+UPDATE Player SET Name = 'Andee' WHERE ID = 1128
+-- Jacksonville
+UPDATE Player SET Name = 'Lily the Kid' WHERE ID = 8407
+UPDATE Player SET Name = 'Lo Blow' WHERE ID = 1863
+UPDATE Player SET Name = 'Lil'' Lass Kicker' WHERE ID = 1851
+UPDATE Player SET Name = 'Stephanie Gentz' WHERE ID = 1853
+-- London
+UPDATE Player SET Number = '129' WHERE ID = 4877
+UPDATE Player SET Name = 'Drac' WHERE ID = 5180
+UPDATE Player SET Name = 'Gaz' WHERE ID = 2036
+UPDATE Player SET Name = 'Katie Hellvetica Black' WHERE ID = 4795
+UPDATE Player SET Number = '18' WHERE ID = 618
+-- Minnesota
+UPDATE Player SET Name = 'Switch Please' WHERE ID = 2339
+UPDATE Player SET Name = 'Chu' WHERE ID = 980
+UPDATE Player SET Name = 'Moose Def-initely' WHERE ID = 9089
+UPDATE Player SET Name = 'Lola Frequency' WHERE ID = 9090
+UPDATE Player SET Name = 'Barbell Fett' WHERE ID = 9091
+UPDATE Player SET Name = 'Gay of Reckoning' WHERE ID = 2321
+UPDATE Player SET Name = 'Thimbleberry Slam' WHERE ID = 9092
+UPDATE Player SET Name = 'anne t. fascism' WHERE ID = 7841
+-- Montreal
+UPDATE Player SET Name = 'FR E SH A VOCA DO' WHERE ID = 6068
+UPDATE Player SET Number = '9999' WHERE ID = 2402
+UPDATE Jam_Player SET Team_PlayerID = 8294 WHERE Team_PlayerID = 10124
+UPDATE Jam_Player_Effectiveness SET PlayerId = 6632 WHERE PlayerId = 8434
+DELETE FROM Team_Player WHERE ID = 10124
+DELETE FROM Player WHERE ID = 8434
+UPDATE Player SET Name = 'Aïe' WHERE ID = 6632
+UPDATE Player SET Name = 'Why So Sirius?' WHERE ID = 5100
+-- Philly
+UPDATE Player SET Name = 'Persephone' WHERE ID = 2942
+UPDATE Player SET Name = 'Herrmann' WHERE ID = 2931
+UPDATE Player SET Name = 'Crank Dat' WHERE ID = 8417
+-- Queen City
+UPDATE Jam_Player SET Team_PlayerID = 8198 WHERE Team_PlayerID = 9625
+UPDATE Jam_Player_Effectiveness SET PlayerId = 6559 WHERE PlayerId = 7969
+DELETE FROM Team_Player WHERE ID = 9625
+DELETE FROM Player WHERE ID = 7969
+UPDATE Jam_Player SET Team_PlayerID = 6659 WHERE Team_PlayerID = 8200
+UPDATE Jam_Player_Effectiveness SET PlayerId = 5185 WHERE PlayerId = 6561
+DELETE FROM Team_Player WHERE ID = 8200
+DELETE FROM Player WHERE ID = 6561
+UPDATE Player SET Name = 'Rosi' WHERE ID = 5185
+UPDATE Player SET Name = 'Squirrel' WHERE ID = 4367
+-- Rat City
+UPDATE Player SET Name = 'Mountain D''Ranged' WHERE ID = 9106
+UPDATE Player SET Name = 'Thumper Skull' WHERE ID = 5633
+UPDATE Player SET Name = 'Habeas Corpses' WHERE ID = 4251
+UPDATE Player SET Name = 'Lilly Lightning' WHERE ID = 3179
+-- Stockholm
+UPDATE Player SET Name = 'Thunder' WHERE ID = 4353
+UPDATE Player SET Name = 'Foxen' WHERE ID = 6207
+UPDATE Player SET Name = 'Fury' WHERE ID = 5192
+UPDATE Player SET Name = 'Party-O' WHERE ID = 7895
+UPDATE Player SET Name = 'Slinky' WHERE ID = 4076
+
+-- 2021-06-27
+UPDATE Player SET Number = '09' WHERE ID = 5093
+UPDATE League SET Name = 'Bay Area Derby' WHERE Name = 'Bay Area Derby Girls'
+UPDATE League SET Name = 'Central City Roller Derby' WHERE Name = 'Central City Rollergirls'
